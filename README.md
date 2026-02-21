@@ -14,7 +14,7 @@ In Claude Code, add the marketplace and install the plugin:
 
 ```
 /plugin marketplace add ericjohnolson/craft
-/plugin install build
+/plugin install crafter
 ```
 
 ### From Local Directory
@@ -27,7 +27,7 @@ In Claude Code, add the marketplace and install the plugin:
 2. In Claude Code, add the marketplace and install:
    ```
    /plugin marketplace add /path/to/craft
-   /plugin install build@craft
+   /plugin install crafter@craft
    ```
 
 ### Updating
@@ -38,13 +38,13 @@ To get the latest version:
 /plugin marketplace update craft
 ```
 
-After installation, skills become available as `build:skill-name` and are automatically triggered when relevant to your task.
+After installation, skills become available as `crafter:skill-name` and are automatically triggered when relevant to your task.
 
 ## Available Skills
 
-### Build Plugin
+### Crafter Plugin
 
-The `build` plugin provides skills for day-to-day software development:
+The `crafter` plugin provides skills for day-to-day software development:
 
 | Skill | Command | Description |
 |-------|---------|-------------|
@@ -57,15 +57,15 @@ The `build` plugin provides skills for day-to-day software development:
 
 #### RPI Methodology (Research → Draft → Craft)
 
-The build plugin's core workflow for non-trivial features:
+The crafter plugin's core workflow for non-trivial features:
 
 1. **Research** (`/research`) — Explore the codebase with parallel subagents, output a compact research artifact
 2. **Draft** (`/draft`) — Consume the research artifact, produce a compact implementation plan with test specs
 3. **Craft** (`/craft`) — Execute the plan phase by phase with strict RED → GREEN → REFACTOR discipline
 
-### Architect Plugin
+### Scaffolder Plugin
 
-The `architect` plugin provides skills for software architecture:
+The `scaffolder` plugin provides skills for software architecture:
 
 | Skill | Command | Description |
 |-------|---------|-------------|
@@ -74,7 +74,7 @@ The `architect` plugin provides skills for software architecture:
 Install each plugin independently:
 
 ```
-/plugin install build
-/plugin install architect
+/plugin install crafter
+/plugin install scaffolder
 ```
 

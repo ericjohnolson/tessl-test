@@ -1,4 +1,4 @@
-# Build Skills
+# Crafter Skills
 
 Skills for day-to-day software development best practices.
 

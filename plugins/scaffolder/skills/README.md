@@ -1,4 +1,4 @@
-# Architect Skills
+# Scaffolder Skills
 
 Skills for software architecture patterns.
 
