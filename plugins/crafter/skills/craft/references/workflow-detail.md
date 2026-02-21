@@ -1,288 +1,269 @@
 # Craft Implement: Workflow Details
 
-This reference provides detailed templates, examples, and procedures for executing the implementation workflow.
+This reference provides detailed templates, examples, and procedures for executing the beads-driven implementation workflow.
 
-## Agent Dispatch Templates
+## Agent Dispatch from Beads Issues
 
-Each implementation phase is executed by three sequential agents dispatched via the `Task` tool. Each agent operates in isolation — it does not share context with the other agents. This separation ensures the test-writer doesn't "know" the implementation and vice versa.
+Each beads issue contains a self-contained agent task description. The craft orchestrator reads the issue description via `beads:show` and uses it to build the agent prompt. No plan file reading is needed.
 
-### Agent 1: Write Test
+### Building Agent Prompts
+
+For each ready issue from `beads:ready`:
+
+1. Run `beads:show {issue-id}` to get the full description
+2. The description follows the self-contained format from `/draft` (see draft template.md)
+3. Wrap the description in a Task tool call with `subagent_type: general-purpose`
+4. The agent receives the issue description as its complete instructions
+
+### Agent 1: Write Test (label: agent-test)
 
 **Purpose:** Create failing tests for the current phase.
 **Agent type:** `general-purpose` (subagent_type)
 **Mode:** Synchronous (not background)
 
+Prompt template — substitute `{issue_description}` with the full beads issue description:
+
 ```
-You are implementing Phase {N}: {Phase Name} of the plan at {plan_path}.
+You are executing a test-writing task from the project's issue tracker.
 
 YOUR ROLE: Write failing tests ONLY. Do NOT write any implementation code.
 
-## Context
-
-Read the implementation plan at {plan_path}, specifically the Agent Context block for Phase {N}.
-
-Key information from the Agent Context:
-- Files to create: {test file paths from Agent Context}
-- Test spec: {behavioral test description from Agent Context}
-- Test command: {test command from Agent Context}
-- RED gate: {what failure should look like from Agent Context}
-
-## Instructions
-
-1. Read the project's CLAUDE.md to understand testing tools, patterns, and conventions
-2. Read any existing test files in the project to match style and patterns
-3. Write test file(s) at the paths specified in the Agent Context
-4. Tests MUST assert behavior at architectural boundaries — no internal mocks
-5. Run the test command: {test command}
-6. Verify tests FAIL for the expected reason (the RED gate)
-
-## Report
-
-After completing, report:
-- **Test files created:** {list of file paths}
-- **Test command output:** {paste the failure output}
-- **RED gate status:** PASS (tests fail as expected) or FAIL (tests don't fail — explain why)
+{issue_description}
 
 IMPORTANT: If tests pass immediately, something is wrong. Report this as a RED gate FAIL.
 ```
 
-### Agent 2: Implement
+### Agent 2: Implement (label: agent-impl)
 
 **Purpose:** Write minimal code to make tests pass.
 **Agent type:** `general-purpose` (subagent_type)
 **Mode:** Synchronous (not background)
 
 ```
-You are implementing Phase {N}: {Phase Name} of the plan at {plan_path}.
+You are executing an implementation task from the project's issue tracker.
 
 YOUR ROLE: Write minimal implementation to make existing tests pass. Do NOT modify test files.
 
-## Context
-
-Read the implementation plan at {plan_path}, specifically the Agent Context block for Phase {N}.
-
-Key information from the Agent Context:
-- Files to create/modify: {implementation file paths from Agent Context}
-- Test command: {test command from Agent Context}
-- GREEN gate: {what success should look like from Agent Context}
-- Architectural constraints: {constraints from Agent Context}
-
-The following test files were created by a previous agent:
-{list of test file paths from Agent 1's report}
-
-## Instructions
-
-1. Read the test files to understand what behavior is expected
-2. Read the project's CLAUDE.md to understand coding patterns and conventions
-3. Read any existing source files that tests import or reference
-4. Write the minimal implementation to make all tests pass
-5. Respect the architectural constraints from the Agent Context
-6. Run the test command: {test command}
-7. Verify all tests PASS (the GREEN gate)
-
-## Report
-
-After completing, report:
-- **Implementation files created/modified:** {list of file paths}
-- **Test command output:** {paste the output}
-- **GREEN gate status:** PASS (all tests pass) or FAIL (some tests fail — include failure output)
+{issue_description}
 
 IMPORTANT: Do NOT modify test files. If a test seems wrong, report it and let a human decide.
 ```
 
-### Agent 3: Validate
+### Agent 3: Validate (label: agent-validate)
 
 **Purpose:** Run the full test suite to ensure nothing is broken.
 **Agent type:** `general-purpose` (subagent_type)
 **Mode:** Synchronous (not background)
 
 ```
-You are validating Phase {N}: {Phase Name} of the plan at {plan_path}.
+You are executing a validation task from the project's issue tracker.
 
 YOUR ROLE: Run the full test suite and report results. Do NOT modify any files.
 
-## Context
-
-Phase {N} has been implemented. The following files were created/modified:
-- Test files: {list from Agent 1}
-- Implementation files: {list from Agent 2}
-
-## Instructions
-
-1. Run the full test suite: {full test suite command from plan}
-2. Check for any failures — both in the new tests and in pre-existing tests
-3. Report the results
-
-## Report
-
-- **Test command:** {command run}
-- **Result:** ALL PASS or FAILURES FOUND
-- **Total tests:** {count}
-- **Failures:** {count and details if any}
-- **Failure output:** {paste relevant failure output if any}
+{issue_description}
 
 IMPORTANT: Do NOT fix anything. Only report.
 ```
 
-### Agent 2-R: Remediation
+### No-Test Agent (label: no-test)
 
-**Purpose:** Fix implementation after Agent 3 finds failures, without modifying tests.
+**Purpose:** Execute non-TDD phase tasks (schema, infrastructure).
 **Agent type:** `general-purpose` (subagent_type)
 **Mode:** Synchronous (not background)
 
 ```
-You are remediating Phase {N}: {Phase Name} of the plan at {plan_path}.
+You are executing a setup task from the project's issue tracker.
+
+YOUR ROLE: Execute the task as described. Verify the acceptance gate.
+
+{issue_description}
+```
+
+### Agent 2-R: Remediation (label: agent-remediate)
+
+**Purpose:** Fix implementation after validation finds failures.
+**Agent type:** `general-purpose` (subagent_type)
+**Mode:** Synchronous (not background)
+
+```
+You are executing a remediation task from the project's issue tracker.
 
 YOUR ROLE: Fix the implementation to make all tests pass. Do NOT modify test files.
 
-## Context
-
-Read the implementation plan at {plan_path}, specifically the Agent Context block for Phase {N}.
-
-The validation agent found failures after implementation:
-
-{paste Agent 3's failure output here}
-
-Files involved:
-- Test files (DO NOT MODIFY): {list from Agent 1}
-- Implementation files (you may modify these): {list from Agent 2}
-
-## Instructions
-
-1. Read the failing tests to understand expected behavior
-2. Read the implementation files to find the issue
-3. Fix the implementation — minimal changes only
-4. Respect the architectural constraints from the Agent Context
-5. Run the full test suite: {full test suite command}
-6. Verify ALL tests pass
-
-## Report
-
-- **Files modified:** {list of changed files}
-- **What was fixed:** {brief description of the issue and fix}
-- **Test command output:** {paste the output}
-- **Result:** ALL PASS or STILL FAILING (include details)
+{issue_description}
 
 IMPORTANT: Do NOT modify test files. Tests define the contract.
 ```
 
 ---
 
-## Phase Execution Pattern Template
+## Parallel Dispatch
 
-Use this template for tracking each phase during execution:
+When `beads:ready` returns multiple issues, dispatch them all in a **single message** with multiple `Task` tool calls.
 
-```markdown
-## Phase {N}: {Phase Name}
+### When Parallel Dispatch Occurs
 
-**Goal:** {Phase goal from plan}
+- Two independent phases have no dependency between them (e.g., Phase 1 schema + Phase 2 of an unrelated feature)
+- Multiple no-test setup tasks are unblocked simultaneously
+- Two TDD write-test agents for phases that don't depend on each other
 
-**Status:** 🔴 Starting
+### When NOT to Parallelize
 
-### Agent 1: Write Test → RED
+- Within a TDD triplet: Write Tests → Implement → Validate MUST be sequential
+- Agent 2 needs Agent 1's test files on disk before it can run
+- Agent 3 needs Agent 2's implementation on disk before it can run
 
-**Dispatched:** {timestamp}
-**Test files:** {paths from agent report}
-**RED gate:** {PASS/FAIL}
+### Example: Parallel Dispatch
 
-### Agent 2: Implement → GREEN
+If `beads:ready` returns issues #5 (no-test setup) and #8 (write tests for independent phase):
 
-**Dispatched:** {timestamp}
-**Implementation files:** {paths from agent report}
-**GREEN gate:** {PASS/FAIL}
-
-### Agent 3: Validate → COMPLETE
-
-**Dispatched:** {timestamp}
-**Result:** {ALL PASS / FAILURES FOUND}
-
-### Phase {N} Complete ✅
-
-**Verification checklist:**
-- [ ] Tests written by isolated agent (no implementation knowledge)
-- [ ] Implementation written by isolated agent (guided only by tests)
-- [ ] Full test suite passes after phase
-- [ ] Phase verification steps from plan completed
-
-**Proceeding to Phase {N+1}**
+```
+# Single message with two Task calls:
+Task(description="P1: Apply Schema", subagent_type="general-purpose", prompt="...")
+Task(description="P3: Write Tests — Repository", subagent_type="general-purpose", prompt="...")
 ```
 
 ---
 
-## Progress Reporting Templates
+## Remediation Issue Creation
 
-Use these templates to keep the user informed throughout implementation:
+When Agent 3 (Validate) reports failures, create new beads issues to handle remediation.
 
-### Phase Start
+### Procedure
+
+1. **Create remediation issue:**
+   ```
+   beads:create
+   Title: P{N}: Remediate — {Phase Name} (attempt {M})
+   Label: agent-remediate, rpi-phase
+   Description: (see template below)
+   Blocked-by: {validate issue id}
+   ```
+
+2. **Create re-validation issue:**
+   ```
+   beads:create
+   Title: P{N}: Re-Validate — {Phase Name} (attempt {M})
+   Label: agent-validate, rpi-phase
+   Blocked-by: {remediation issue id}
+   ```
+
+3. **Rewire dependencies:**
+   - The next phase's first issue should now be blocked-by the re-validation issue
+   - Use `beads:dep` to update the dependency
+
+4. **Close the original validate issue** — it completed its job (reporting failures)
+
+### Remediation Issue Description Template
 
 ```markdown
-## Phase 2: Core Logic
+## Agent Task: Remediate — {Phase Name} (Phase {N}, attempt {M})
 
-**Goal:** Implement pure business logic for discount calculation
-**Status:** 🔴 Starting — dispatching Agent 1 (Write Test)
+**Role:** Fix the implementation to make all tests pass. Do NOT modify test files.
+
+### Agent Context
+- **Files to modify (implementation):** `{implementation file path(s)}`
+- **Files to read (tests, DO NOT MODIFY):** `{test file path(s)}`
+- **Full test command:** `{full test suite command}`
+- **Failure output from validation:**
+
+{paste Agent 3's failure output here}
+
+### Instructions
+1. Read the failing tests to understand expected behavior
+2. Read the implementation files to find the issue
+3. Fix the implementation — minimal changes only
+4. Run the full test suite
+5. Verify ALL tests pass
+
+### Report
+- Files modified: [list paths]
+- What was fixed: [brief description]
+- Test command output: [paste]
+- Result: ALL PASS or STILL FAILING
 ```
 
-### Phase In Progress
+### Escalation
+
+If attempt count reaches 2 and re-validation still fails:
+1. Update the re-validation issue to `blocked` status via `beads:update`
+2. Report the failure to the user with full context
+3. Wait for user guidance before proceeding
+
+---
+
+## Progress Reporting
+
+### After Each Issue Closes
+
+Report the issue closure and overall epic progress:
 
 ```markdown
-**Status:** 🔵 Agent 2 (Implement) dispatched — making tests pass
+**Closed:** P2: Write Tests — Core Logic
+**Next:** P2: Implement — Core Logic (now unblocked)
+
+**Epic Progress:** 3/12 issues closed
 ```
 
-### Phase Complete
+### Periodic Summary
 
-```markdown
-**Status:** ✅ Complete
-
-- Agent 1: Tests written and confirmed RED ✅
-- Agent 2: Implementation passes tests ✅
-- Agent 3: Full suite validated ✅
-```
-
-### Overall Progress
+Use `beads:list` to show full epic status:
 
 ```markdown
 **Progress Update:**
-- ✅ Phase 1: Database Schema - Complete
-- ✅ Phase 2: Core Logic - Complete (3 agents)
-- 🔵 Phase 3: Repository Layer - Agent 2 in progress
-- ⚪ Phase 4: Feature Use Case - Not Started
-- ⚪ Phase 5: HTTP Routes - Not Started
-- ⚪ Phase 6: Full Integration - Not Started
+- [closed] P1: Apply Schema
+- [closed] P2: Write Tests — Core Logic
+- [closed] P2: Implement — Core Logic
+- [open]  P2: Validate — Core Logic (dispatched)
+- [open]  P3: Repository Layer (blocked by P2-Validate)
+- [open]  P4: Write Tests — Apply Discount (blocked by P3)
+- [open]  P4: Implement — Apply Discount (blocked by P4-Write-Tests)
+- [open]  P4: Validate — Apply Discount (blocked by P4-Implement)
 
-**Progress:** 2/6 phases complete (33%)
+**Progress:** 3/8 issues closed (37%)
 ```
 
+---
+
 ## Error Handling Procedures
-
-### Remediation Loop
-
-If Agent 3 finds failures:
-1. **First attempt:** Dispatch Agent 2-R with failure output (max context for debugging)
-2. **Second attempt:** If still failing, dispatch Agent 2-R again with updated failure output
-3. **Stop:** After 2 remediation attempts, STOP and ask the human for guidance
 
 ### If Agent 1 RED Gate Fails
 
 If tests pass immediately (before implementation):
 1. **STOP** — the test is not testing new behavior
-2. **Report to human** — explain that tests pass without implementation
-3. **Do NOT proceed** to Agent 2 — the phase is broken
+2. **Do NOT close the issue** — leave it open
+3. **Report to user** — explain that tests pass without implementation
+4. **Do NOT dispatch Agent 2** — the phase is broken
 
 ### If Phase Cannot Be Completed
 
 If a phase cannot be completed after remediation:
-1. **Document the issue** — What failed and why
-2. **Ask for guidance** — Should we adjust the plan?
-3. **Don't skip ahead** — Phases depend on previous phases
-4. **Don't work around** — Fix the root cause
+1. **Update the issue to blocked** via `beads:update`
+2. **Document the issue** in a comment via `beads:comments`
+3. **Ask for guidance** — should we adjust the approach?
+4. **Don't skip ahead** — beads dependency graph prevents this automatically
 
-### If Plan is Incomplete
+### If Beads State is Inconsistent
 
-If the Agent Context block is missing details:
-1. **Note the gap** — What's unclear?
-2. **Ask for clarification** — Get specifics before proceeding
-3. **Don't guess** — Assumptions cause rework
-4. **Don't improvise** — Stick to the plan or update it
+If `beads:ready` returns no tasks but open tasks remain:
+1. Check `beads:blocked` to see what's stuck
+2. Look for circular dependencies or missing closures
+3. Report to user with the blocked issue details
+
+---
+
+## Session Recovery
+
+Recovery requires no special logic:
+
+1. User runs `/craft` in a new session
+2. Identify the epic (user provides name or use `beads:search`)
+3. Run `beads:ready` — returns exactly the next dispatchable tasks
+4. Resume the orchestration loop from Step 2
+
+Closed issues represent completed work (files already on disk). The orchestration loop picks up seamlessly.
+
+---
 
 ## Quality Standards Checklists
 
@@ -296,50 +277,56 @@ If the Agent Context block is missing details:
 - [ ] Implementation written by Agent 2 guided only by test expectations
 - [ ] Uses existing patterns from project CLAUDE.md
 - [ ] Minimal code to pass tests
-- [ ] Respects architectural constraints from Agent Context
+- [ ] Respects architectural constraints from issue description
 
 ### Phase Verification
 - [ ] Each phase validated by Agent 3 before proceeding
 - [ ] Full test suite passes (not just new tests)
 - [ ] Remediation attempts tracked (max 2 per phase)
+- [ ] Issues closed only after gates pass
 
 ## Final Verification Template
 
-Use this template after all phases complete:
+Use this template after all issues in the epic are closed:
 
 ```markdown
 ## Final Verification
 
 ### Full Test Suite
-{Run full test suite command from plan}
+{Run full test suite command}
 
-**Result:** {✅ All passing / ❌ Failures found}
+**Result:** {All passing / Failures found}
 
 ### Acceptance Criteria
 
-From plan:
+From epic:
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] Criterion 3
 
 ### Agent Execution Summary
 
-| Phase | Agent 1 (RED) | Agent 2 (GREEN) | Agent 3 (VALIDATE) | Remediations |
-|-------|--------------|-----------------|-------------------|--------------|
-| 1     | ✅           | ✅              | ✅                | 0            |
-| 2     | ✅           | ✅              | ✅                | 0            |
-| ...   | ...          | ...             | ...               | ...          |
+| Phase | Write Test | Implement | Validate | Remediations |
+|-------|-----------|-----------|----------|--------------|
+| 1     | n/a       | n/a       | n/a      | 0 (no-test)  |
+| 2     | closed    | closed    | closed   | 0            |
+| 3     | n/a       | n/a       | n/a      | 0 (no-test)  |
+| ...   | ...       | ...       | ...      | ...          |
+
+**Total issues:** {count}
+**Remediations:** {count}
+**Session recoveries:** {count}
 
 ---
 
 ## Implementation Complete
 
-All phases executed successfully:
-- ✅ All tests passing
-- ✅ All acceptance criteria met
-- ✅ No test skips
-- ✅ Code follows architectural patterns
-- ✅ Test/implementation isolation maintained across all phases
+All beads issues closed:
+- All tests passing
+- All acceptance criteria met
+- No test skips
+- Code follows architectural patterns
+- Test/implementation isolation maintained across all phases
 
 **Next steps:**
 - Run `/commit` to create commit

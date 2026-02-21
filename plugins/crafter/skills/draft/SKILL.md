@@ -5,7 +5,7 @@ triggers:
   - "plan"
   - "draft plan"
   - "implementation plan"
-allowed-tools: Read Glob Write Bash EnterPlanMode ExitPlanMode AskUserQuestion
+allowed-tools: Read Glob Write Bash AskUserQuestion Skill
 ---
 
 # Craft Plan Skill
@@ -40,7 +40,7 @@ Use this skill when:
 
 ## Workflow
 
-### 1. Consume Research Artifact (If Exists) — BEFORE Plan Mode
+### 1. Consume Research Artifact (If Exists)
 
 If research artifact exists:
 ```
@@ -52,20 +52,18 @@ If no research artifact, create an inline summary (condensed):
 - Note existing patterns
 - List integration points
 
-### 2. Define Plan Scope — BEFORE Plan Mode
+### 2. Define Plan Scope
 
 Ask the user to clarify if needed:
 - What are the acceptance criteria?
 - Are there specific constraints or preferences?
 - What's the priority (MVP vs full feature)?
 
-### 3. Enter Plan Mode
+### 3. Create Implementation Plan (Audit Trail)
 
-Call `EnterPlanMode` to switch to plan mode. This restricts available tools to read-only operations plus writing to the plan file — appropriate for planning work.
+Write the plan directly to `docs/plans/YYYY-MM-DD-{topic}-plan.md` using the `Write` tool and the [template structure](references/template.md). Use kebab-case for the topic slug (e.g., `2026-02-21-add-discount-codes-plan.md`).
 
-### 4. Create Implementation Plan — IN Plan Mode
-
-Write the plan to the plan file using the [template structure](references/template.md).
+**Note:** The plan file serves as a **human-readable audit trail** for code review, PR descriptions, and design understanding. It is NOT the runtime source of truth for `/craft` — beads issues are (see Step 3b).
 
 **Required sections:**
 - **Goal** — 1-2 sentence description of what we're building and why
@@ -93,26 +91,75 @@ Write the plan to the plan file using the [template structure](references/templa
 
 See [template.md](references/template.md) for the complete template with Agent Context block reference.
 
-### 5. Exit Plan Mode — User Reviews
+### 3b. Create Beads Task Graph (Execution Source of Truth)
 
-Call `ExitPlanMode` to present the plan for user review and approval.
+After writing the plan file, create a beads epic and per-agent-step issues that `/craft` will execute. The beads task graph is the **contract between draft and craft** — each issue is self-contained with everything an agent needs.
 
-### 6. Persist Artifact — AFTER Approval
+**Procedure:**
 
-After the user approves the plan, save it to version control:
+1. **Create the epic** via `beads:epic` with the feature name as the title
+2. **For each phase**, create beads issues per the agent-step decomposition:
+   - **TDD phases** get 3 issues: Write Tests → Implement → Validate
+   - **Non-TDD phases** (schema, infrastructure) get 1 issue
+   - **Final verification** gets 1 issue
+3. **Wire dependencies** via `beads:dep` so ordering is enforced:
+   - Within a TDD triplet: Write Tests → Implement → Validate (sequential)
+   - Across phases: Phase N's last issue blocks Phase N+1's first issue
+   - Independent phases with no data dependency can run in parallel
+4. **Label each issue** via `beads:label`:
+   - `rpi-phase` on all issues
+   - `agent-test`, `agent-impl`, `agent-validate`, or `no-test` per agent type
+   - `L3` or `L4` for boundary test level (TDD phases only)
+
+**Issue description format:** Each issue description MUST contain the full Agent Context — everything an agent needs to execute without reading the plan file or any other external document. See [template.md](references/template.md) for the self-contained issue description templates for each agent type.
+
+**Example decomposition for a 6-phase feature:**
+
 ```
-docs/plans/YYYY-MM-DD-{topic}-plan.md
+Epic: "Add Discount Codes"
+
+Phase 1 (no-test):
+├── P1: Apply Schema                         [no blockers]
+
+Phase 2 (TDD, L3):
+├── P2: Write Tests — Core Logic             [blocked-by P1]
+├── P2: Implement — Core Logic               [blocked-by P2-Write-Tests]
+├── P2: Validate — Core Logic                [blocked-by P2-Implement]
+
+Phase 3 (no-test):
+├── P3: Repository Layer                     [blocked-by P2-Validate]
+
+Phase 4 (TDD, L3):
+├── P4: Write Tests — Apply Discount         [blocked-by P3]
+├── P4: Implement — Apply Discount           [blocked-by P4-Write-Tests]
+├── P4: Validate — Apply Discount            [blocked-by P4-Implement]
+
+Phase 5 (TDD, L4):
+├── P5: Write Tests — POST /orders           [blocked-by P4-Validate]
+├── P5: Implement — POST /orders             [blocked-by P5-Write-Tests]
+├── P5: Validate — POST /orders              [blocked-by P5-Implement]
+
+Phase 6 (verification):
+└── P6: Full Integration                     [blocked-by P5-Validate]
 ```
 
-Use kebab-case for the topic slug (e.g., `add-discount-codes-plan.md`).
+### 4. Present Plan for Review
 
-### 7. Prompt Next Steps
+Tell the user:
+- The file path where the plan was saved (audit trail)
+- The beads epic name and issue count (execution source of truth)
+- A brief summary of the key sections (goal, phases, acceptance criteria)
+- Ask if they want any changes before proceeding to `/craft`
+
+### 5. Prompt Next Steps
 
 ```
 Implementation plan saved. Next steps:
-- Run `/craft` to execute this plan phase by phase
-- Each phase will be executed by isolated agents (test writer → implementer → validator)
-- If changes needed, clarify what to adjust and I'll update the plan
+- Plan file (audit trail): docs/plans/YYYY-MM-DD-{topic}-plan.md
+- Beads epic created: {epic name} ({N} issues, dependencies wired)
+- Run `/craft` to execute — it will dispatch agents from beads issues
+- Session recovery: if interrupted, `/craft` picks up where it left off via beads:ready
+- If changes needed, clarify what to adjust and I'll update both the plan and beads issues
 ```
 
 ## Test Specifications at Boundaries
@@ -141,7 +188,7 @@ See [template.md](references/template.md) for detailed guidelines.
 
 ## Agent Context Blocks
 
-Every implementation phase with tests MUST include an `#### Agent Context` subsection. This is the contract between `/draft` and `/craft` — it provides everything an isolated agent needs.
+Every implementation phase with tests MUST include an `#### Agent Context` subsection in the plan file (for audit). The same Agent Context is embedded in each beads issue description (for execution). This is the contract between `/draft` and `/craft`.
 
 **Required fields:**
 - **Files to create/modify** — explicit paths
@@ -150,7 +197,7 @@ Every implementation phase with tests MUST include an `#### Agent Context` subse
 - **RED gate / GREEN gate** — observable success criteria
 - **Architectural constraints** — boundaries the agent must respect
 
-See [template.md](references/template.md) for the Agent Context block reference.
+See [template.md](references/template.md) for the Agent Context block reference and beads issue description templates.
 
 ## Phase Boundaries
 
@@ -175,17 +222,22 @@ Bad boundaries: "Implement everything", mixing multiple layers
 ## After Planning
 
 Once plan is complete and reviewed:
-1. User reviews plan (via `ExitPlanMode`)
-2. User approves or requests changes
-3. Plan persisted to `docs/plans/`
-4. Run `/craft` with plan artifact as input
-5. Implementation executes phase by phase with isolated agents
+1. User reviews plan at `docs/plans/YYYY-MM-DD-{topic}-plan.md` (audit trail)
+2. User verifies beads epic and issues via `beads:list` or `beads:epic`
+3. User approves or requests changes (both plan file and beads issues are updated)
+4. Run `/craft` — it executes purely from beads issues, not the plan file
 
 ## Context Compaction
 
 **Why plan after research?** The plan phase is a compaction point:
 - **Before planning:** Research artifact (~200 lines of findings)
 - **After planning:** Implementation spec (~200 lines of actionable phases with Agent Context)
-- **Implementation phase** works from compact plan, not raw research
+- **Implementation phase** works from self-contained beads issues, not raw research or the plan file
 
-This prevents context thrashing and keeps implementation focused.
+## Session Recovery
+
+The beads task graph provides durable state across sessions:
+- **Closed issues** = completed work (agents ran, gates passed, files on disk)
+- **Ready issues** = next tasks to dispatch (use `beads:ready`)
+- **Blocked issues** = waiting on dependencies
+- If a session is interrupted, running `/craft` again picks up exactly where it left off

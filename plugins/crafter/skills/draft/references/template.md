@@ -1,5 +1,9 @@
 # Implementation Plan Template
 
+## Plan File Role
+
+The plan file at `docs/plans/YYYY-MM-DD-{topic}-plan.md` is a **human-readable audit trail** — useful for code review, PR descriptions, and understanding the feature's design after the fact. It is NOT read by `/craft` during execution. The beads task graph is the runtime source of truth.
+
 ## Template Structure
 
 ```markdown
@@ -7,6 +11,7 @@
 
 **Date:** YYYY-MM-DD
 **Status:** Plan - Ready for Review
+**Beads Epic:** {epic name}
 
 ## Goal
 
@@ -224,8 +229,9 @@ Before implementing, verify:
 ## Next Steps
 
 After human review and approval:
-1. Run `/craft` to execute this plan phase by phase
-2. Each phase: Agent 1 writes failing tests → Agent 2 implements → Agent 3 validates
+1. Run `/craft` to execute — dispatches agents from beads issues
+2. Each TDD phase: Agent 1 writes failing tests → Agent 2 implements → Agent 3 validates
+3. If interrupted, `/craft` picks up where it left off via `beads:ready`
 ```
 
 ---
@@ -345,3 +351,146 @@ Each phase should:
 - [ ] Each phase can be executed by an isolated agent using its Agent Context block
 - [ ] Verification steps are concrete and observable
 - [ ] Ready to hand off to `/craft`
+
+### Beads Integration
+- [ ] Epic created with feature name
+- [ ] Each agent step has its own beads issue
+- [ ] Issue descriptions are self-contained (no plan file reference needed)
+- [ ] Dependencies wired (TDD triplets sequential, cross-phase ordering)
+- [ ] Labels applied (rpi-phase, agent-test/agent-impl/agent-validate/no-test, L3/L4)
+
+---
+
+## Beads Issue Description Templates
+
+Each beads issue description MUST be self-contained — everything an agent needs to execute without reading the plan file. Use these templates when creating issues in Step 3b.
+
+### Write Tests Issue (agent-test)
+
+```markdown
+## Agent Task: Write Tests — {Phase Name} (Phase {N})
+
+**Role:** Write failing tests ONLY. Do NOT write implementation code.
+
+### Agent Context
+- **Files to create:** `{test file path(s)}`
+- **Test spec:** {Behavioral description — properties, invariants, contracts to test. Be specific.}
+- **Test command:** `{shell command to run tests}`
+- **RED gate:** Tests fail because `{implementation file}` does not exist yet
+- **Architectural constraints:** {L3/L4 boundary, property-based with fast-check, no mocks, etc.}
+
+### Instructions
+1. Read the project's CLAUDE.md for testing tools and conventions
+2. Read existing test files to match style
+3. Write test file(s) at the specified paths
+4. Run the test command
+5. Verify tests FAIL (RED gate)
+
+### Report
+- Test files created: [list paths]
+- Test command output: [paste]
+- RED gate status: PASS (tests fail as expected) or FAIL
+```
+
+### Implement Issue (agent-impl)
+
+```markdown
+## Agent Task: Implement — {Phase Name} (Phase {N})
+
+**Role:** Write minimal implementation to pass tests. Do NOT modify test files.
+
+### Agent Context
+- **Files to create:** `{implementation file path(s)}`
+- **Files to read (tests):** `{test file path(s)}`
+- **Test command:** `{shell command to run tests}`
+- **GREEN gate:** All tests pass
+- **Architectural constraints:** {Pure functions, no side effects, adapter layer, etc.}
+
+### Instructions
+1. Read the test files to understand expected behavior
+2. Read the project's CLAUDE.md for coding patterns
+3. Write minimal implementation to pass all tests
+4. Run the test command
+5. Verify tests PASS (GREEN gate)
+
+### Report
+- Implementation files created/modified: [list paths]
+- Test command output: [paste]
+- GREEN gate status: PASS or FAIL
+```
+
+### Validate Issue (agent-validate)
+
+```markdown
+## Agent Task: Validate — {Phase Name} (Phase {N})
+
+**Role:** Run the full test suite and report. Do NOT modify any files.
+
+### Agent Context
+- **Full test command:** `{full test suite command}`
+- **Phase test files:** `{test file path(s)}`
+- **Phase impl files:** `{implementation file path(s)}`
+
+### Instructions
+1. Run the full test suite
+2. Report results — both new and pre-existing tests
+
+### Report
+- Result: ALL PASS or FAILURES FOUND
+- Total tests: [count]
+- Failures: [count and details]
+```
+
+### No-Test Issue (no-test)
+
+```markdown
+## Agent Task: {Task Name} (Phase {N})
+
+**Role:** Execute non-TDD phase task.
+
+### Agent Context
+- **Files to create/modify:** `{file path(s)}`
+- **Commands to run:** `{migration commands, etc.}`
+- **Acceptance gate:** {Observable success criterion — e.g., "Migration applies without error"}
+- **Architectural constraints:** {Any relevant constraints}
+
+### Instructions
+1. Read the project's CLAUDE.md for conventions
+2. Execute the tasks listed above
+3. Verify the acceptance gate
+
+### Report
+- Files created/modified: [list paths]
+- Command output: [paste]
+- Acceptance gate status: PASS or FAIL
+```
+
+### Remediation Issue (agent-remediate)
+
+Created dynamically by `/craft` when validation fails. Not created during `/draft`.
+
+```markdown
+## Agent Task: Remediate — {Phase Name} (Phase {N}, attempt {M})
+
+**Role:** Fix the implementation to make all tests pass. Do NOT modify test files.
+
+### Agent Context
+- **Files to modify (implementation):** `{implementation file path(s)}`
+- **Files to read (tests, DO NOT MODIFY):** `{test file path(s)}`
+- **Full test command:** `{full test suite command}`
+- **Failure output from validation:**
+{paste Agent 3's failure output}
+
+### Instructions
+1. Read the failing tests to understand expected behavior
+2. Read the implementation files to find the issue
+3. Fix the implementation — minimal changes only
+4. Run the full test suite
+5. Verify ALL tests pass
+
+### Report
+- Files modified: [list paths]
+- What was fixed: [brief description]
+- Test command output: [paste]
+- Result: ALL PASS or STILL FAILING
+```

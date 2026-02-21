@@ -1,38 +1,38 @@
 ---
 name: craft
-description: Implement phase of RPI methodology. Loads plan and executes phase by phase using isolated agents for test-first discipline. Use when executing an implementation plan from the draft skill.
+description: Implement phase of RPI methodology. Executes beads-driven task graph using isolated agents for test-first discipline. Use when executing an implementation plan from the draft skill.
 triggers:
   - "implement"
   - "execute plan"
   - "build from plan"
-allowed-tools: Read Glob Write Bash Task TaskOutput
+allowed-tools: Read Glob Write Bash Task TaskOutput Skill
 ---
 
 # Craft Implement Skill
 
 **RPI Phase 3 of 3:** Research → Plan → **Implement**
 
-Use this skill to execute an implementation plan phase by phase using isolated agents for strict test-first discipline.
+Use this skill to execute an implementation plan using beads-driven orchestration with isolated agents for strict test-first discipline.
 
 ## Purpose
 
-The Implement phase executes a compact plan using three agents per phase:
-- **Agent 1 (Write Test):** Creates failing tests from the phase's test spec — knows nothing about the implementation
+The Implement phase executes a beads task graph created by `/draft`. Each beads issue is a self-contained agent task with everything needed for dispatch. The dependency graph enforces ordering. `beads:ready` drives execution.
+
+Three agent types per TDD phase:
+- **Agent 1 (Write Test):** Creates failing tests from the issue's test spec — knows nothing about the implementation
 - **Agent 2 (Implement):** Writes minimal code to make tests pass — guided only by the tests
 - **Agent 3 (Validate):** Runs the full test suite — confirms nothing is broken
 
-This isolation ensures tests are honest (not written to match implementation) and implementation is minimal (driven only by test expectations).
-
-**Input:** Implementation plan at `docs/plans/YYYY-MM-DD-{topic}-plan.md`
+**Input:** Beads epic with per-agent-step issues (created by `/draft`)
 **Output:** Working feature with passing tests
 
 ## When to Use
 
 Use this skill when:
-- Have a complete implementation plan from `/draft`
+- Have a complete beads task graph from `/draft`
 - Ready to execute plan phase by phase
 - Want strict test/implementation isolation enforced
-- Need incremental progress reporting
+- Resuming an interrupted implementation session
 
 **Don't use** for:
 - Exploratory coding without a plan
@@ -41,82 +41,88 @@ Use this skill when:
 
 ## Workflow
 
-### 1. Load Implementation Plan
+### 1. Identify the Epic
 
-Read the plan artifact:
+Find the target epic via user input or `beads:search`. Verify the epic has issues with dependencies wired.
+
+If resuming a previous session, this step is the same — `beads:ready` will return only unblocked, uncompleted tasks.
+
+### 2. Beads-Driven Orchestration Loop
+
+This is the core execution loop. It runs until all issues in the epic are closed or an unrecoverable error occurs.
+
 ```
-Read: docs/plans/YYYY-MM-DD-{topic}-plan.md
+Loop:
+  a. Run beads:ready for the epic → list of unblocked tasks
+  b. If no ready tasks and open tasks remain → something is blocked, escalate to user
+  c. If no ready tasks and no open tasks remain → all done, proceed to final verification
+  d. For each ready task:
+     - Read issue description (contains full Agent Context)
+     - Determine agent type from label (agent-test, agent-impl, agent-validate, no-test)
+     - Dispatch Task with agent prompt built from issue description
+     - If multiple ready tasks: dispatch in parallel (single message, multiple Task calls)
+  e. Wait for agent(s) to complete
+  f. For each completed agent:
+     - If gate PASSED → close the issue via beads:close → unblocks dependents
+     - If RED gate FAILED (tests pass immediately) → STOP, report to user
+     - If GREEN gate FAILED → proceed to validation anyway
+     - If VALIDATE found failures → create remediation issues (see Remediation)
+  g. Loop back to (a)
 ```
 
-Extract:
-- Implementation phases with Agent Context blocks
-- Acceptance criteria
-- Full test suite command
+See [workflow-detail.md](references/workflow-detail.md) for agent prompt templates and dispatch details.
 
-### 2. Execute Phases with Agent Dispatch
+#### Dispatching Agents
 
-For each phase in the plan, dispatch three sequential agents. Use the prompt templates from [workflow-detail.md](references/workflow-detail.md).
+For each ready issue, build the agent prompt from the issue description:
 
-**For phases WITH tests (L3/L4 boundaries):**
+1. Read the issue description via `beads:show`
+2. The description contains the full Agent Context — file paths, test specs, commands, gates, constraints
+3. Dispatch via `Task` tool (synchronous, `subagent_type: general-purpose`)
+4. The agent does NOT need to read the plan file — the issue is self-contained
 
-#### Step A: Dispatch Agent 1 (Write Test)
+#### Parallel Dispatch
 
-Dispatch via `Task` tool (synchronous, `subagent_type: general-purpose`):
-- Pass the plan path and phase number
-- Include the Agent Context block from the plan
-- Agent writes test files and runs them to confirm failure
+When `beads:ready` returns multiple tasks, dispatch them all in a **single message with multiple `Task` tool calls**. This happens naturally when:
+- Two independent phases have no dependency between them
+- A no-test phase and a test-write phase are both unblocked
 
-**Verify RED gate:** Agent 1 must report that tests fail for the expected reason. If tests pass immediately, STOP — do not proceed.
+TDD phases can't parallelize internally (Implement needs Write Test's output on disk), but independent phases parallelize across each other automatically via the dependency graph.
 
-#### Step B: Dispatch Agent 2 (Implement)
+#### Remediation
 
-Dispatch via `Task` tool (synchronous, `subagent_type: general-purpose`):
-- Pass the plan path, phase number, and test file paths from Agent 1
-- Agent writes implementation and runs tests to confirm they pass
+When Agent 3 (Validate) finds failures:
 
-**Verify GREEN gate:** Agent 2 must report all tests passing. If tests fail, proceed to remediation.
+1. Create a remediation issue via `beads:create` with label `agent-remediate`:
+   - Title: `P{N}: Remediate — {Phase Name} (attempt {M})`
+   - Description: includes failure output from Agent 3 (see [workflow-detail.md](references/workflow-detail.md) for template)
+   - Blocked-by the failed Validate issue
+2. Create a re-validation issue via `beads:create` with label `agent-validate`:
+   - Title: `P{N}: Re-Validate — {Phase Name} (attempt {M})`
+   - Blocked-by the remediation issue
+3. Wire the next phase's first issue to be blocked-by the re-validation issue (replacing the original Validate dependency)
+4. Close the original Validate issue (it completed its job — reporting failures)
+5. If attempt count reaches 2 and re-validation still fails, update the issue to `blocked` status and **STOP — ask the user**
 
-#### Step C: Dispatch Agent 3 (Validate)
+### 3. Report Progress
 
-Dispatch via `Task` tool (synchronous, `subagent_type: general-purpose`):
-- Pass the full test suite command and file lists from Agents 1 and 2
-- Agent runs the full suite and reports results
-
-**Verify COMPLETE:** If all tests pass, proceed to next phase. If failures found, enter remediation loop.
-
-**For phases WITHOUT tests (schema, infrastructure):**
-
-Execute directly (no agent dispatch needed):
-- Follow the tasks in the plan
-- Verify the acceptance gate from the Agent Context block
-- Proceed to next phase
-
-#### Remediation Loop
-
-If Agent 3 finds failures:
-1. Dispatch Agent 2-R with failure output from Agent 3 (max 2 retries)
-2. After each remediation, dispatch Agent 3 again to validate
-3. If still failing after 2 remediation attempts, **STOP and ask the user**
-
-### 3. Report Progress After Each Phase
-
-After each phase completes, report status:
+After each issue closes, report status. Use `beads:list` to show overall progress:
 ```markdown
 **Progress Update:**
-- ✅ Phase 1: Database Schema - Complete
-- ✅ Phase 2: Core Logic - Complete (Agent 1→2→3)
-- 🔵 Phase 3: Feature Layer - Agent 1 dispatched
-- ⚪ Phase 4: HTTP Routes - Not Started
+- [closed] P1: Apply Schema
+- [closed] P2: Write Tests — Core Logic
+- [closed] P2: Implement — Core Logic
+- [open]  P2: Validate — Core Logic (in progress)
+- [open]  P3: Repository Layer (blocked)
+- [open]  P4: Write Tests — Apply Discount (blocked)
 ```
-
-See [workflow-detail.md](references/workflow-detail.md) for progress templates.
 
 ### 4. Final Verification
 
-After all phases complete:
+After all issues in the epic are closed:
 1. Run the full test suite one final time
-2. Verify all acceptance criteria from the plan are met
-3. Report the agent execution summary (phases, remediations)
+2. Verify all acceptance criteria from the epic are met
+3. Report the agent execution summary (issues closed, remediations)
 4. Suggest next steps (commit, PR, follow-up)
 
 ## Agent Isolation Discipline
@@ -136,27 +142,37 @@ After all phases complete:
 If Agent 1's tests pass immediately (before implementation):
 1. STOP — the test is tautological or the feature already exists
 2. Report to user — explain what happened
-3. Do NOT dispatch Agent 2
+3. Do NOT close the issue — leave it open for user decision
 
 ### If GREEN Gate Fails
 
 If Agent 2 cannot make tests pass:
 1. Proceed to Agent 3 anyway (to get full failure report)
-2. Enter remediation loop with Agent 2-R
+2. Enter remediation via dynamic issue creation
 3. After 2 failed remediations, STOP and ask user
+
+## Session Recovery
+
+Recovery is trivial: run `beads:ready` for the epic.
+
+- **Closed issues** = completed work (agents ran, gates passed, files on disk)
+- **Ready issues** = next tasks to dispatch
+- **Blocked issues** = waiting on dependencies or human input
+
+No special recovery logic needed. The beads state *is* the execution state.
 
 ## Anti-Patterns to Avoid
 
-- **Don't let agents share context** — each agent starts from the plan and files on disk
+- **Don't let agents share context** — each agent starts from the beads issue and files on disk
 - **Don't skip Agent 3** — validation catches regressions in other tests
 - **Don't modify tests during implementation** — tests define the contract
-- **Don't skip phases** — execute in order, each depends on previous
-- **Don't improvise beyond the plan** — stick to the plan or update it explicitly
+- **Don't read the plan file during execution** — beads issues are self-contained
+- **Don't improvise beyond the plan** — stick to the beads issues or update them explicitly
 - **Don't run agents in background** — synchronous dispatch ensures ordering
 
 ## After Implementation
 
-Once all phases complete and verified:
+Once all issues closed and verified:
 1. **Run full test suite** — confirm everything passes
 2. **Verify acceptance criteria** — all must be met
 3. **Manual smoke test** — try key user journeys if applicable
@@ -166,8 +182,8 @@ Once all phases complete and verified:
 ## Context Compaction
 
 **Why isolated agents?** Each agent loads only what it needs:
-- **Agent 1:** Plan's test spec + project test patterns → writes tests
-- **Agent 2:** Test files + plan's constraints → writes implementation
-- **Agent 3:** Test command → runs and reports
+- **Agent 1:** Issue's test spec + project test patterns → writes tests
+- **Agent 2:** Test files on disk + issue's constraints → writes implementation
+- **Agent 3:** Test command from issue → runs and reports
 
-No agent carries the full research or planning context. The plan's Agent Context blocks provide exactly the information each agent needs.
+No agent carries the full research or planning context. Each beads issue description provides exactly the information the dispatched agent needs.
