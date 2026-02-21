@@ -1,11 +1,11 @@
 ---
 name: research
-description: Research phase of RPI methodology. Spawns parallel subagents for codebase exploration AND web/pattern research, then synthesizes findings in plan mode for user review. Produces compact research artifact. Use at the start of non-trivial features.
+description: Research phase of RPI methodology. Spawns parallel subagents for codebase exploration AND web/pattern research, then synthesizes findings for user review. Produces compact research artifact. Use at the start of non-trivial features.
 triggers:
   - "research"
   - "explore codebase"
   - "investigate"
-allowed-tools: Read Glob Grep Bash Task TaskOutput WebSearch WebFetch AskUserQuestion Write EnterPlanMode ExitPlanMode
+allowed-tools: Read Glob Grep Bash Task TaskOutput WebSearch WebFetch AskUserQuestion Write
 ---
 
 # Research Skill
@@ -66,7 +66,7 @@ Use this skill when:
 
 ## Workflow
 
-### 1. Define Research Scope — BEFORE Plan Mode
+### 1. Define Research Scope
 
 Ask the user to clarify the research scope if needed:
 - What is the feature or capability being built?
@@ -77,11 +77,9 @@ Based on the chosen depth, decompose the scope into:
 - **Codebase investigation areas** (2-5 depending on depth)
 - **Web research topics** (0-3 depending on depth)
 
-### 2. Dispatch Parallel Agents — BEFORE Plan Mode
+### 2. Dispatch Parallel Agents
 
 **CRITICAL: Dispatch ALL agents in a SINGLE message using multiple Task tool calls with `run_in_background: true`.**
-
-Agents need the Task tool with full access, so this step MUST happen before plan mode.
 
 Two agent types — see [agent prompts](references/agent-prompts.md) for full templates:
 
@@ -107,17 +105,13 @@ Task(general-purpose): "Research discount/coupon code validation patterns and be
 Task(general-purpose): "Research Stripe coupon API integration patterns"
 ```
 
-### 3. Collect Agent Results — BEFORE Plan Mode
+### 3. Collect Agent Results
 
 - Poll agents with `TaskOutput block: false` to check progress
 - Collect completed results with `TaskOutput block: true`
 - If an agent returns thin results, note the gap — do NOT dispatch a follow-up agent
 
-### 4. Enter Plan Mode
-
-Call `EnterPlanMode` to switch to plan mode. Synthesis and artifact writing happen in plan mode because they are read/write-only activities — no tool dispatch needed.
-
-### 5. Synthesize and Write Artifact — IN Plan Mode
+### 4. Synthesize and Write Artifact
 
 Cross-reference codebase patterns against web findings:
 - Align codebase patterns with web best practices
@@ -126,26 +120,29 @@ Cross-reference codebase patterns against web findings:
 - Low-confidence web findings become **Open Questions** unless corroborated by codebase evidence
 - Flag contested findings where web sources disagree
 
-Write the research artifact to the plan file using the [research artifact template](references/template.md). Target ~200 lines.
-
-### 6. Exit Plan Mode — User Reviews
-
-Call `ExitPlanMode` to present the research artifact for user review and approval.
-
-### 7. Persist Artifact — AFTER Approval
-
-After the user approves, save the artifact to version control:
+Write the research artifact **immediately** to disk:
 ```
 docs/plans/YYYY-MM-DD-{topic}-research.md
 ```
 
-Use kebab-case for the topic slug.
+Use the [research artifact template](references/template.md). Target ~200 lines. Use kebab-case for the topic slug — make it descriptive of the feature (e.g., `add-discount-codes`, `user-auth-refresh-tokens`).
 
-### 8. Prompt Next Steps
+### 5. Review with User
 
-Present a brief summary of key findings, then prompt user to:
-- Clarify open questions
-- Proceed to `/draft` when satisfied
+Use `AskUserQuestion` to present:
+- A summary of key findings (3-5 bullet points)
+- The artifact path
+
+If the user requests edits → update the artifact in place with `Write`, then ask again. Repeat until the user approves.
+
+### 6. Prompt Next Steps
+
+Tell the user:
+1. The artifact path
+2. To clear context by running `/clear`
+3. To run `/draft` with the artifact path as input
+
+Explain why: research-phase context (agent outputs, file reads, web fetches) pollutes the planning phase. Clearing ensures `/draft` works from the compact artifact alone.
 
 ## Anti-Patterns to Avoid
 
@@ -156,16 +153,15 @@ Present a brief summary of key findings, then prompt user to:
 - **Don't include irrelevant details** — stay focused on the feature
 - **Don't present web findings without confidence levels** — every web finding needs High/Medium/Low
 - **Don't trust a single web source** — cross-reference when possible
-- **Don't dispatch agents inside plan mode** — agents need full tool access; dispatch them before entering plan mode
 
 ## After Research
 
-Once research is complete and reviewed:
-1. User reviews findings (via `ExitPlanMode`)
-2. User clarifies any open questions
-3. Artifact persisted to `docs/plans/`
-4. Run `/draft` with research artifact as input
-5. Research artifact serves as context for planning
+Once research is complete:
+1. Artifact is written to `docs/plans/` immediately after synthesis
+2. User reviews summary and requests edits via `AskUserQuestion`
+3. Clear context window with `/clear`
+4. Run `/draft` with the research artifact path as input
+5. Research artifact serves as the sole context for planning
 
 ## Context Compaction
 
