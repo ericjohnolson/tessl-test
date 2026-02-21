@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "crafter",
-      "source": "./",
+      "source": "./plugins/crafter",
       "description": "Claude Code skills for software development best practices including TDD, refactoring, architecture patterns, and AI development workflows.",
       "version": "1.2.0",
       "author": {
@@ -21,7 +21,7 @@
     },
     {
       "name": "scaffolder",
-      "source": "./",
+      "source": "./plugins/scaffolder",
       "description": "Skills for software architecture patterns including hexagonal (ports & adapters) architecture.",
       "version": "1.0.0",
       "author": {
