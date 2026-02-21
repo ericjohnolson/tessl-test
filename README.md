@@ -42,3 +42,39 @@ After installation, skills become available as `build:skill-name` and are automa
 
 ## Available Skills
 
+### Build Plugin
+
+The `build` plugin provides skills for day-to-day software development:
+
+| Skill | Command | Description |
+|-------|---------|-------------|
+| **tdd** | `/tdd` | Boundary-focused TDD workflow enforcing L3/L4 altitude testing and property-based tests |
+| **research** | `/research` | Spawns parallel subagents to explore a codebase and produce a compact research artifact |
+| **draft** | `/draft` | Consumes research artifact and produces a compact implementation plan with L3/L4 test specs |
+| **craft** | `/craft` | Executes an implementation plan phase by phase with strict test-first discipline |
+| **refactor** | `/refactor` | Refactoring process with test safety and incremental commits |
+| **pair** | `/pair` | Guided pair-programming mode where Claude teaches rather than writes code |
+
+#### RPI Methodology (Research → Draft → Craft)
+
+The build plugin's core workflow for non-trivial features:
+
+1. **Research** (`/research`) — Explore the codebase with parallel subagents, output a compact research artifact
+2. **Draft** (`/draft`) — Consume the research artifact, produce a compact implementation plan with test specs
+3. **Craft** (`/craft`) — Execute the plan phase by phase with strict RED → GREEN → REFACTOR discipline
+
+### Architect Plugin
+
+The `architect` plugin provides skills for software architecture:
+
+| Skill | Command | Description |
+|-------|---------|-------------|
+| **hexagonal-architecture** | `/hexagonal-architecture` | Applies hexagonal (ports & adapters) architecture with domain-first design |
+
+Install each plugin independently:
+
+```
+/plugin install build
+/plugin install architect
+```
+

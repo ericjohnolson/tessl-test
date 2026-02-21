@@ -22,7 +22,7 @@
     {
       "name": "architect",
       "source": "./",
-      "description": "Claude Code skills for software development best practices including TDD, refactoring, architecture patterns, and AI development workflows.",
+      "description": "Skills for software architecture patterns including hexagonal (ports & adapters) architecture.",
       "version": "1.0.0",
       "author": {
         "name": "Eric Olson"
