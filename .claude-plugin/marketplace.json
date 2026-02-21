@@ -9,7 +9,7 @@
   },
   "plugins": [
     {
-      "name": "build",
+      "name": "crafter",
       "source": "./",
       "description": "Claude Code skills for software development best practices including TDD, refactoring, architecture patterns, and AI development workflows.",
       "version": "1.2.0",

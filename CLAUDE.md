@@ -8,8 +8,8 @@ Craft is a Claude Code plugin marketplace that delivers skills (structured markd
 
 ## Project Structure
 
-- `.claude-plugin/marketplace.json` — Plugin registry declaring two plugins: `build` (v1.2.0) and `architect` (v1.0.0)
-- `plugins/build/skills/` — Skills for the build plugin (tdd, research, draft, craft, refactor, pair, tidy, reflect)
+- `.claude-plugin/marketplace.json` — Plugin registry declaring two plugins: `crafter` (v1.2.0) and `architect` (v1.0.0)
+- `plugins/crafter/skills/` — Skills for the crafter plugin (tdd, research, draft, craft, refactor, pair, tidy, reflect)
 - `plugins/architect/skills/` — Skills for the architect plugin (hexagonal-architecture)
 
 Each skill is a directory containing `SKILL.md` (with YAML frontmatter for name, description, triggers, allowed-tools) and an optional `references/` subdirectory with supplementary markdown.
@@ -19,11 +19,11 @@ Each skill is a directory containing `SKILL.md` (with YAML frontmatter for name,
 ```
 # From GitHub
 /plugin marketplace add ericjohnolson/craft
-/plugin install build
+/plugin install crafter
 
 # From local directory
 /plugin marketplace add /path/to/craft
-/plugin install build@craft
+/plugin install crafter@craft
 
 # Update
 /plugin marketplace update craft
@@ -33,7 +33,7 @@ Each skill is a directory containing `SKILL.md` (with YAML frontmatter for name,
 
 ### RPI Methodology (Research → Draft → Craft)
 
-The core workflow across the build skills:
+The core workflow across the crafter skills:
 
 1. **Research** (`/research`) — Spawns parallel subagents to explore a codebase, outputs a ~200-line research artifact to `docs/plans/YYYY-MM-DD-{topic}-research.md`
 2. **Draft** (`/draft`) — Consumes the research artifact, produces a compact implementation plan to `docs/plans/YYYY-MM-DD-{topic}-plan.md`
