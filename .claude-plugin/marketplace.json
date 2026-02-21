@@ -20,7 +20,7 @@
       "category": "software-development"
     },
     {
-      "name": "architect",
+      "name": "scaffolder",
       "source": "./",
       "description": "Skills for software architecture patterns including hexagonal (ports & adapters) architecture.",
       "version": "1.0.0",
