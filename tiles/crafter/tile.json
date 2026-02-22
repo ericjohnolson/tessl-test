@@ -1,0 +1,16 @@
+{
+  "name": "lightfactory/crafter",
+  "version": "1.2.3",
+  "summary": "Skills for software development best practices including TDD, refactoring, architecture patterns, and AI development workflows",
+  "private": true,
+  "skills": {
+    "research": { "path": "skills/research/SKILL.md" },
+    "draft": { "path": "skills/draft/SKILL.md" },
+    "craft": { "path": "skills/craft/SKILL.md" },
+    "tdd": { "path": "skills/tdd/SKILL.md" },
+    "refactor": { "path": "skills/refactor/SKILL.md" },
+    "pair": { "path": "skills/pair/SKILL.md" },
+    "tidy": { "path": "skills/tidy/SKILL.md" },
+    "reflect": { "path": "skills/reflect/SKILL.md" }
+  }
+}

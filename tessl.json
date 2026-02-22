@@ -1,0 +1,12 @@
+{
+  "name": "my-project",
+  "mode": "vendored",
+  "dependencies": {
+    "lightfactory/test-skill": {
+      "source": "file:tiles/test-skill"
+    },
+    "lightfactory/crafter": {
+      "source": "file:tiles/crafter"
+    }
+  }
+}

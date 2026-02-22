@@ -1,0 +1,11 @@
+{
+  "name": "lightfactory/test-skill",
+  "version": "0.1.0",
+  "summary": "testing tessl skills",
+  "private": true,
+  "skills": {
+    "test-skill": {
+      "path": "skills/test-skill/SKILL.md"
+    }
+  }
+}
