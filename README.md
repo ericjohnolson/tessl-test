@@ -54,6 +54,8 @@ The `crafter` plugin provides skills for day-to-day software development:
 | **craft** | `/craft` | Executes an implementation plan phase by phase with strict test-first discipline |
 | **refactor** | `/refactor` | Refactoring process with test safety and incremental commits |
 | **pair** | `/pair` | Guided pair-programming mode where Claude teaches rather than writes code |
+| **tidy** | `/tidy` | Audit agent-facing documentation (CLAUDE.md, READMEs) for staleness and recommend fixes |
+| **reflect** | `/reflect` | Post-session reflection that mines git history and artifacts to produce improvement proposals |
 
 #### RPI Methodology (Research → Draft → Craft)
 
