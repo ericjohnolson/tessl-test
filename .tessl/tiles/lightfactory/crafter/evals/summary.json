@@ -31,6 +31,12 @@
       "description": "Verifies research skill stops after artifact and does not proceed to planning"
     },
     {
+      "id": "research-parallel-dispatch",
+      "skill": "research",
+      "capability": "parallel-agent-dispatch",
+      "description": "Verifies multiple agents dispatched in a single message with run_in_background"
+    },
+    {
       "id": "draft-plan-and-tasks",
       "skill": "draft",
       "capability": "plan-file-and-task-graph",
@@ -53,6 +59,12 @@
       "skill": "craft",
       "capability": "agent-isolation",
       "description": "Verifies separate agents for test/implement/validate with synchronous dispatch"
+    },
+    {
+      "id": "craft-session-recovery",
+      "skill": "craft",
+      "capability": "session-recovery",
+      "description": "Verifies craft resumes from partially-completed epic without re-executing closed issues"
     },
     {
       "id": "refactor-commit-discipline",

@@ -84,6 +84,8 @@ Save the report to: `docs/plans/YYYY-MM-DD-tidy-report.md`
 
 #### 4. Present Report to User
 
+**REQUIRED:** Use `AskUserQuestion` to present findings and let the user choose which to address. **Do NOT skip this step or auto-select findings.** The user MUST have the opportunity to review and select.
+
 Use `AskUserQuestion` to present a summary of findings by severity:
 
 ```
@@ -121,11 +123,23 @@ Examples of commit messages:
 - `tidy: document DATABASE_URL env var in CLAUDE.md`
 - `tidy: remove reference to deleted utils/helpers.ts`
 
-#### 6. Summary
+#### 6. Write Tidy Report Fixes Section
+
+**Append a "Fixes Applied" section to the tidy report** (`docs/plans/YYYY-MM-DD-tidy-report.md`). This serves as a git-fallback audit trail when commits cannot be verified:
+
+```markdown
+## Fixes Applied
+| # | Severity | Fix | Commit Message |
+|---|----------|-----|----------------|
+| 1 | must-fix | {description} | `tidy: {message}` |
+| 2 | should-fix | {description} | `tidy: {message}` |
+```
+
+#### 7. Summary
 
 After all fixes are applied, present a brief summary:
 - Number of findings addressed
-- List of commits made
+- List of commits made (or reference the "Fixes Applied" table)
 - Any findings skipped and why
 
 ## Audit Categories

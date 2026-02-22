@@ -1,0 +1,11 @@
+{
+  "context": "Tests whether the research skill dispatches multiple agents in parallel using run_in_background in a single message, collects results, and produces a research artifact.",
+  "type": "weighted_checklist",
+  "checklist": [
+    { "name": "Multiple agents dispatched", "description": "At least 3 agents (codebase explorers and/or web researchers) are dispatched for the research task", "max_score": 25 },
+    { "name": "Single message dispatch",    "description": "All agents are dispatched in a single message with multiple Task tool calls, not sequentially", "max_score": 30 },
+    { "name": "Background flag used",       "description": "Agents are dispatched with run_in_background: true", "max_score": 20 },
+    { "name": "Artifact produced",          "description": "A research artifact is written to docs/plans/ with -research.md suffix", "max_score": 15 },
+    { "name": "Results collected",          "description": "Agent results are collected via TaskOutput before synthesis", "max_score": 10 }
+  ]
+}
