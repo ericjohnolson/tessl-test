@@ -26,4 +26,8 @@ The beads task graph has the following issues:
 
 **IMPORTANT SETUP:** The test file `tests/core/email-validator.test.ts` already exists with passing tests (the email-validator module was already implemented in a previous session). This means the RED gate should FAIL — tests pass before any new implementation.
 
-Use the craft skill to execute this plan.
+## Environment Note
+
+**Beads is NOT available in this environment.** Use the inline execution mode — treat the epic context above as if returned by `beads:show`. Process issues in dependency order using the inline context. Do NOT attempt `beads:search` or other `beads:*` commands.
+
+Use the `/craft` skill immediately to execute this plan.

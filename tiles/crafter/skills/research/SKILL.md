@@ -139,12 +139,25 @@ If the user requests edits → update the artifact in place with `Write`, then a
 
 ### 6. Prompt Next Steps and STOP
 
-Tell the user:
-1. The artifact path
-2. To clear context by running `/clear`
-3. To run `/draft` with the artifact path as input
+Present the following output EXACTLY — this is the required format:
 
-Explain why: research-phase context (agent outputs, file reads, web fetches) pollutes the planning phase. Clearing ensures `/draft` works from the compact artifact alone.
+```markdown
+---
+
+## Research Complete
+
+**Artifact saved:** `docs/plans/YYYY-MM-DD-{topic}-research.md`
+
+### Next steps — in order:
+
+1. **Run `/clear`** to reset the context window
+2. **Run `/draft docs/plans/YYYY-MM-DD-{topic}-research.md`** to create the implementation plan
+3. After draft completes, run `/craft` to execute
+
+> **Why /clear?** Research-phase context (agent outputs, file reads, web fetches) pollutes the planning phase. Clearing ensures `/draft` works from the compact artifact alone.
+```
+
+Replace `YYYY-MM-DD-{topic}` with the actual artifact path.
 
 **Then STOP. Do not take any further actions. The research phase is complete.**
 

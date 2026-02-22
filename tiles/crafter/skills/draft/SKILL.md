@@ -95,7 +95,30 @@ See [template.md](references/template.md) for the complete template with Agent C
 
 After writing the plan file, create a beads epic and per-agent-step issues that `/craft` will execute. The beads task graph is the **contract between draft and craft** — each issue is self-contained with everything an agent needs.
 
-**Procedure:**
+#### Beads Availability Check
+
+Before creating beads issues, verify beads is available by attempting `beads:epic`.
+
+- **Beads available:** Proceed with the standard procedure below.
+- **Beads unavailable:** Switch to **Inline Task Graph** mode. Instead of creating beads issues, embed the full task graph directly in the plan file as an additional section:
+
+```markdown
+## Inline Task Graph (beads unavailable)
+
+### P1: Apply Schema [no-test] [no blockers]
+- **Agent Context:** {full agent context as would appear in beads issue}
+
+### P2: Write Tests — Core Logic [agent-test, L3] [blocked-by: P1]
+- **Agent Context:** {full agent context}
+
+### P2: Implement — Core Logic [agent-impl] [blocked-by: P2-Write-Tests]
+- **Agent Context:** {full agent context}
+...
+```
+
+Each inline issue follows the same description format as beads issues — self-contained with everything an agent needs. `/craft` will consume this inline graph when beads is unavailable.
+
+**Procedure (when beads is available):**
 
 1. **Create the epic** via `beads:epic` with the feature name as the title
 2. **For each phase**, create beads issues per the agent-step decomposition:

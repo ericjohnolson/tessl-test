@@ -33,6 +33,14 @@ Never change test assertions, test data, or test logic.
 - Add files in scope to todo list
 - Find or create ./test.sh, verify all tests pass
 - Remove comments from files in scope (commit per file)
+- **Create `REFACTORING_SUMMARY.md`** in the project root with the following initial content:
+  ```markdown
+  # Refactoring Summary
+  ## Baseline
+  - Files in scope: {list of files}
+  - Test result: {PASS/FAIL with test count}
+  ## Steps
+  ```
 
 ## 2. Main Refactoring
 
@@ -58,7 +66,14 @@ For each refactor:
 3. Ensure all tests pass after the change
 4. Commit each successful refactor with the message format: "- r <refactoring>" (the message must include the "- r" prefix)
    Prefer small granular commits. If applying the same refactoring pattern to multiple locations, change one location at a time and commit each separately.
-5. Provide a status update after each refactor
+5. **Append to `REFACTORING_SUMMARY.md`:**
+   ```
+   ### Step {N}: {refactoring description}
+   - Commit: `- r {message}`
+   - Test result: {PASS with test count}
+   - Files changed: {list}
+   ```
+6. Provide a status update after each refactor
 
 ## 3. Final Evaluation
 
@@ -79,4 +94,13 @@ Repeat until you find nothing more to improve.
 Provide a high-level summary of the refactoring:
 - List each file that was touched
 - Describe the key improvements made in each file
+
+**Append a final section to `REFACTORING_SUMMARY.md`:**
+```markdown
+## Final
+- Total steps: {N}
+- Files touched: {list of all files changed}
+- All commits: {list of commit messages}
+- Final test result: {PASS with test count}
+```
 

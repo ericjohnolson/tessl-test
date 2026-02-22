@@ -63,6 +63,32 @@ See [agent prompts](references/agent-prompts.md) for full templates.
 | Context Reader | Explore | `./CLAUDE.md`, `~/.claude/CLAUDE.local.md`, `.claude/settings.json` |
 | Skill Inspector | Explore | SKILL.md files for skills used in the session |
 
+#### Agent Dispatch Manifest
+
+The reflection artifact MUST include an **Agent Dispatch Manifest** table documenting the agents dispatched:
+
+```markdown
+## Agent Dispatch Manifest
+| Agent | Type | Status | Key Finding |
+|-------|------|--------|-------------|
+| Git Historian | Explore | completed | {1-line summary} |
+| Artifact Scout | Explore | completed | {1-line summary} |
+| Context Reader | Explore | completed | {1-line summary} |
+| Skill Inspector | Explore | completed | {1-line summary} |
+```
+
+This table provides observable evidence of parallel agent dispatch.
+
+#### Git Unavailable Fallback
+
+If git is unavailable (e.g., eval sandbox), include a **Commits (Simulated)** section in the reflection artifact listing the commits that would have been created:
+
+```markdown
+## Commits (Simulated)
+- `reflect: {description of improvement 1}`
+- `reflect: {description of improvement 2}`
+```
+
 ### 3. Collect Agent Results — BEFORE Plan Mode
 
 - Poll agents with `TaskOutput block: false` to check progress

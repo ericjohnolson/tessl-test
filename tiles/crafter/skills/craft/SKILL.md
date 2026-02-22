@@ -39,11 +39,32 @@ Use this skill when:
 - Simple bug fixes
 - Research or planning tasks
 
+## Execution Log
+
+**REQUIRED:** Create `craft-execution-log.md` in the project root at the start of every craft session. Append entries throughout orchestration. This provides an observable audit trail of agent dispatch and gate results.
+
+Entry format (one per line, append-only):
+```
+[DISPATCHED] {issue title} — agent type: {agent-test|agent-impl|agent-validate}, mode: {sync|parallel}
+[GATE PASS] {issue title} — {RED|GREEN|VALIDATE} gate passed
+[GATE FAIL] {issue title} — {RED|GREEN|VALIDATE} gate failed: {reason}
+[CLOSED] {issue title}
+[REMEDIATION] {issue title} — attempt {N}: {description}
+[BLOCKED] {issue title} — escalating to user: {reason}
+```
+
+## Beads Availability
+
+Before starting the orchestration loop, check whether beads is available by attempting `beads:search`.
+
+- **Beads available:** Follow the standard beads-driven orchestration loop below.
+- **Beads unavailable:** Switch to **Inline Execution Mode** — treat the epic context provided inline (in the task prompt or plan file) as if it were returned by `beads:show`. Process issues in dependency order as described in the inline context. Use `craft-execution-log.md` as the sole record of progress. Skip all `beads:*` commands but follow all other workflow steps identically (agent dispatch, gates, remediation).
+
 ## Workflow
 
 ### 1. Identify the Epic
 
-Find the target epic via user input or `beads:search`. Verify the epic has issues with dependencies wired.
+Find the target epic via user input or `beads:search`. Verify the epic has issues with dependencies wired. If beads is unavailable, use the inline epic context provided in the task prompt.
 
 If resuming a previous session, this step is the same — `beads:ready` will return only unblocked, uncompleted tasks.
 

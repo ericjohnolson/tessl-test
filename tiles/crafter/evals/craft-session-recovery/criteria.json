@@ -1,0 +1,10 @@
+{
+  "context": "Tests whether the craft skill correctly resumes from a partially-completed epic, starting at the first open/ready issue without re-executing closed issues.",
+  "type": "weighted_checklist",
+  "checklist": [
+    { "name": "Identifies ready tasks",    "description": "Correctly identifies P3-Write-Tests as the first ready (unblocked, open) task to execute", "max_score": 30 },
+    { "name": "Starts at correct point",   "description": "Begins execution at P3 (the first open phase), not at P1 or P2 which are already closed", "max_score": 30 },
+    { "name": "No re-execution",           "description": "Does not re-dispatch agents for closed issues (P1, P2-Write-Tests, P2-Implement, P2-Validate)", "max_score": 25 },
+    { "name": "Continues through phase",   "description": "Proceeds through P3 issues in dependency order (Write Tests → Implement → Validate)", "max_score": 15 }
+  ]
+}

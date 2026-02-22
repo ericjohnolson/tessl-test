@@ -44,18 +44,33 @@ MODE (user specifies, default: auto)
 
 For layered architectures, see [boundary-testing.md](references/boundary-testing.md) for L3/L4 altitude testing, property-based tests with fast-check, behavioral assertions, HTTP contract tests, and architecture-specific anti-patterns.
 
+## Session Log
+
+**REQUIRED:** Create `tdd-session-log.md` in the project root at the start of every TDD session. Append entries as events occur throughout the session. This is the first file written to disk — before any test comments or production code.
+
+Entry format (one per line, append-only):
+```
+[PLAN] {description of test plan}
+[RED-PREDICT] {test name} — expected failure: {reason}
+[RED-CONFIRM] {test name} — actual failure: {actual error}
+[GREEN] {test name} — passed with: {summary of code added}
+[REFACTOR] {description of refactoring applied}
+```
+
 ## Test Planning
 
 1. Think about what the code you want to write should do
-2. Plan tests as single-line `[TEST]` comments. Example:
+2. Plan tests as single-line `[TEST]` comments — **these are the FIRST artifact written to disk** (before any production code). Each `[TEST]` comment MUST include a ZOMBIES letter annotation indicating which heuristic it covers:
    ```
-   [TEST] Zero plus a number is equal to that number
-   [TEST] Add two positive numbers
-   [TEST] Add two negative numbers
-   [TEST] Adds a negative and a positive number
-   [TEST] Division by zero is not allowed
-   ...
+   [TEST] Zero plus a number is equal to that number  <- Z
+   [TEST] Add two positive numbers  <- O
+   [TEST] Add many numbers in sequence  <- M
+   [TEST] Adding MAX_INT overflows gracefully  <- B
+   [TEST] Calculator exposes add() in public API  <- I
+   [TEST] Division by zero throws ArithmeticError  <- E
+   [TEST] Add returns a number  <- S
    ```
+   Letters: **Z**ero, **O**ne, **M**any, **B**oundary, **I**nterface, **E**xception, **S**imple
 3. Check completeness - walk through [ZOMBIES](references/zombies.md) explicitly:
    - Zero/empty cases covered?
    - One item cases covered?
@@ -63,7 +78,9 @@ For layered architectures, see [boundary-testing.md](references/boundary-testing
    - Boundary transitions covered?
    - Interface clarity verified?
    - Exceptions/errors covered?
-4. If MODE is human, wait for confirmation after test planning
+   Verify every ZOMBIES letter appears at least once in the annotations. If any letter is missing, add a test for it.
+4. Append a `[PLAN]` entry to `tdd-session-log.md` listing all planned tests
+5. If MODE is human, wait for confirmation after test planning
 
 ## Implementation Phase
 

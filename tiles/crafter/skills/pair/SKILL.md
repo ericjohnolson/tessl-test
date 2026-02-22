@@ -45,6 +45,8 @@ Store the chosen level for the session duration.
 
 #### 1.2: Assess Domain Familiarity
 
+**REQUIRED:** Use `AskUserQuestion` to explicitly ask the engineer their familiarity level. Do NOT infer or skip this step.
+
 | Level | Teaching Calibration |
 |-------|---------------------|
 | **New to this** | Start from fundamentals, explain concepts, provide more context |
@@ -168,11 +170,22 @@ When the engineer types `/unpair`:
 - [Summary of what was accomplished]
 
 ### Suggested Next Steps
-- [Follow-up reading, practice exercises, or related concepts]
+- [Follow-up that references SPECIFIC concepts from THIS session — not generic advice]
 
 ---
 
 Switching back to normal Claude mode.
 ```
+
+**Next Steps Quality Check:** Every suggested next step MUST reference a specific concept, pattern, or topic from the session. Generic advice is forbidden.
+
+Good examples:
+- "Practice the Repository pattern we discussed by adding a `ProductRepository`"
+- "Read about property-based testing with fast-check since we used it for the converter"
+
+Bad examples (do NOT produce these):
+- "Keep practicing!"
+- "Read more about testing"
+- "Try building another feature"
 
 After presenting the summary, return to standard interaction style.
