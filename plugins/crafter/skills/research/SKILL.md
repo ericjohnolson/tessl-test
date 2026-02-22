@@ -5,7 +5,7 @@ triggers:
   - "research"
   - "explore codebase"
   - "investigate"
-allowed-tools: Read Glob Grep Bash Task TaskOutput WebSearch WebFetch AskUserQuestion Write
+allowed-tools: Read Glob Grep Task TaskOutput WebSearch WebFetch AskUserQuestion Write
 ---
 
 # Research Skill
@@ -129,13 +129,15 @@ Use the [research artifact template](references/template.md). Target ~200 lines.
 
 ### 5. Review with User
 
+**REQUIRED — Do not skip this step.**
+
 Use `AskUserQuestion` to present:
 - A summary of key findings (3-5 bullet points)
 - The artifact path
 
 If the user requests edits → update the artifact in place with `Write`, then ask again. Repeat until the user approves.
 
-### 6. Prompt Next Steps
+### 6. Prompt Next Steps and STOP
 
 Tell the user:
 1. The artifact path
@@ -143,6 +145,21 @@ Tell the user:
 3. To run `/draft` with the artifact path as input
 
 Explain why: research-phase context (agent outputs, file reads, web fetches) pollutes the planning phase. Clearing ensures `/draft` works from the compact artifact alone.
+
+**Then STOP. Do not take any further actions. The research phase is complete.**
+
+## STOP — Phase Complete
+
+**After the user approves the research artifact, your job is DONE.**
+
+- Do NOT proceed to planning or implementation
+- Do NOT invoke /draft or /craft
+- Do NOT write any code files
+- Do NOT create any plans or task graphs
+- Your ONLY remaining action is to tell the user the next steps (/clear → /draft)
+- Then STOP responding
+
+The next phases happen in separate conversations with clean context windows.
 
 ## Anti-Patterns to Avoid
 

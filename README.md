@@ -78,3 +78,7 @@ Install each plugin independently:
 /plugin install scaffolder
 ```
 
+
+## Known Issues
+
+* tidy skill is not operating as expected
