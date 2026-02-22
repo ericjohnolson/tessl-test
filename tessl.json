@@ -7,6 +7,9 @@
     },
     "lightfactory/crafter": {
       "source": "file:tiles/crafter"
+    },
+    "tessl-labs/tessl-skill-eval-scenarios": {
+      "version": "0.1.0"
     }
   }
 }

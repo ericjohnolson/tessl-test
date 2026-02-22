@@ -1,0 +1,31 @@
+{
+  "context": "Tests the full pair session lifecycle: familiarity assessment at start, code only after engineer's attempt in collaborative mode, and a structured summary with concepts and next steps on /unpair.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Familiarity assessed",
+      "description": "Domain familiarity level is assessed during session initialization",
+      "max_score": 10
+    },
+    {
+      "name": "Code after attempt",
+      "description": "In collaborative mode, working code is only provided after the engineer makes their own attempt",
+      "max_score": 20
+    },
+    {
+      "name": "Summary produced",
+      "description": "A structured session summary is generated when /unpair is invoked",
+      "max_score": 30
+    },
+    {
+      "name": "Concepts listed",
+      "description": "Summary includes specific concepts or patterns discussed during the session",
+      "max_score": 20
+    },
+    {
+      "name": "Next steps included",
+      "description": "Summary includes follow-up suggestions such as reading, exercises, or related concepts",
+      "max_score": 20
+    }
+  ]
+}

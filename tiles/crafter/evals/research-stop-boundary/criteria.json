@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the research skill maintains its stop boundary when the prompt asks for both research and a plan. The skill should complete the research artifact only and not proceed to planning.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Artifact created",
+      "description": "A research artifact file is written to docs/plans/ with -research.md suffix",
+      "max_score": 20
+    },
+    {
+      "name": "No plan created",
+      "description": "No plan file (-plan.md) is created and no beads issues are created despite prompt requesting it",
+      "max_score": 30
+    },
+    {
+      "name": "No code written",
+      "description": "No implementation source code files (.ts, .js) are created or modified",
+      "max_score": 20
+    },
+    {
+      "name": "Clear prompt given",
+      "description": "User is explicitly told to run /clear before proceeding to /draft",
+      "max_score": 20
+    },
+    {
+      "name": "Draft next step",
+      "description": "Next steps mention /draft as the follow-up after clearing context",
+      "max_score": 10
+    }
+  ]
+}

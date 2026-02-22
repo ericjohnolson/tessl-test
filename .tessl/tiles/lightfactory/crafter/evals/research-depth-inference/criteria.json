@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the research skill infers the correct depth level from the prompt, dispatches parallel subagents in a single message, writes a compact artifact, and stops without proceeding to planning.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Depth inferred",
+      "description": "Depth level is inferred from prompt as Quick or Standard (not Deep) for a single well-bounded module",
+      "max_score": 20
+    },
+    {
+      "name": "Parallel dispatch",
+      "description": "Multiple subagents are dispatched in parallel in a single message, not sequentially",
+      "max_score": 30
+    },
+    {
+      "name": "Artifact written",
+      "description": "Research artifact is written to docs/plans/ with YYYY-MM-DD naming and -research.md suffix",
+      "max_score": 20
+    },
+    {
+      "name": "Artifact length",
+      "description": "Research artifact stays under approximately 200 lines",
+      "max_score": 10
+    },
+    {
+      "name": "Stops after research",
+      "description": "Skill stops after writing the artifact without proceeding to planning or implementation",
+      "max_score": 20
+    }
+  ]
+}

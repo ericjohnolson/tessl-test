@@ -1,10 +1,6 @@
 ---
 name: craft
-description: Implement phase of RPI methodology. Executes beads-driven task graph using isolated agents for test-first discipline. Use when executing an implementation plan from the draft skill.
-triggers:
-  - "implement"
-  - "execute plan"
-  - "build from plan"
+description: Implements a feature by executing a plan phase-by-phase — writes tests first, runs them red, then implements code to make them green, then validates nothing is broken. Use when you have a plan from /draft and are ready to implement, build, develop, create, or write code for a feature using TDD.
 allowed-tools: Read Glob Write Bash Task TaskOutput Skill
 ---
 
@@ -16,12 +12,7 @@ Use this skill to execute an implementation plan using beads-driven orchestratio
 
 ## Purpose
 
-The Implement phase executes a beads task graph created by `/draft`. Each beads issue is a self-contained agent task with everything needed for dispatch. The dependency graph enforces ordering. `beads:ready` drives execution.
-
-Three agent types per TDD phase:
-- **Agent 1 (Write Test):** Creates failing tests from the issue's test spec — knows nothing about the implementation
-- **Agent 2 (Implement):** Writes minimal code to make tests pass — guided only by the tests
-- **Agent 3 (Validate):** Runs the full test suite — confirms nothing is broken
+Executes a beads task graph created by `/draft`. Each beads issue is a self-contained agent task with everything needed for dispatch. The dependency graph enforces ordering; `beads:ready` drives execution.
 
 **Input:** Beads epic with per-agent-step issues (created by `/draft`)
 **Output:** Working feature with passing tests
@@ -127,29 +118,33 @@ After all issues in the epic are closed:
 
 ## Agent Isolation Discipline
 
-**CRITICAL:** The three-agent pattern exists to maintain honest separation between tests and implementation.
+**CRITICAL:** The three-agent pattern maintains honest separation between tests and implementation.
 
-### Rules
+### Agent Roles
 
-1. **Agent 1 writes tests only** — never implementation code
-2. **Agent 2 writes implementation only** — never modifies test files
-3. **Agent 3 modifies nothing** — only runs tests and reports
-4. **Agent 2-R fixes implementation only** — never modifies test files
-5. **Each agent starts fresh** — no shared context between agents
+1. **Agent 1 (Write Test):** Creates failing tests only — never writes implementation code
+2. **Agent 2 (Implement):** Writes implementation only — never modifies test files
+3. **Agent 3 (Validate):** Runs tests and reports only — modifies nothing
+4. **Agent 2-R (Remediate):** Fixes implementation only — never modifies test files
+5. **Each agent starts fresh** — no shared context; each reads from the beads issue and files on disk
 
-### If RED Gate Fails
+### Gate Failures
 
-If Agent 1's tests pass immediately (before implementation):
+**RED Gate failed** (Agent 1's tests pass immediately before implementation):
 1. STOP — the test is tautological or the feature already exists
-2. Report to user — explain what happened
-3. Do NOT close the issue — leave it open for user decision
+2. Report to user and leave the issue open for their decision
 
-### If GREEN Gate Fails
-
-If Agent 2 cannot make tests pass:
-1. Proceed to Agent 3 anyway (to get full failure report)
+**GREEN Gate failed** (Agent 2 cannot make tests pass):
+1. Proceed to Agent 3 anyway to capture the full failure report
 2. Enter remediation via dynamic issue creation
 3. After 2 failed remediations, STOP and ask user
+
+### What Not to Do
+
+- **Don't skip Agent 3** — validation catches regressions in other tests
+- **Don't read the plan file during execution** — beads issues are self-contained
+- **Don't improvise beyond the plan** — stick to the beads issues or update them explicitly
+- **Don't run agents in background** — synchronous dispatch ensures ordering
 
 ## Session Recovery
 
@@ -161,15 +156,6 @@ Recovery is trivial: run `beads:ready` for the epic.
 
 No special recovery logic needed. The beads state *is* the execution state.
 
-## Anti-Patterns to Avoid
-
-- **Don't let agents share context** — each agent starts from the beads issue and files on disk
-- **Don't skip Agent 3** — validation catches regressions in other tests
-- **Don't modify tests during implementation** — tests define the contract
-- **Don't read the plan file during execution** — beads issues are self-contained
-- **Don't improvise beyond the plan** — stick to the beads issues or update them explicitly
-- **Don't run agents in background** — synchronous dispatch ensures ordering
-
 ## After Implementation
 
 Once all issues closed and verified:
@@ -179,11 +165,3 @@ Once all issues closed and verified:
 4. **Create commit** — use `/commit` skill
 5. **Document follow-up** — note any deferred work
 
-## Context Compaction
-
-**Why isolated agents?** Each agent loads only what it needs:
-- **Agent 1:** Issue's test spec + project test patterns → writes tests
-- **Agent 2:** Test files on disk + issue's constraints → writes implementation
-- **Agent 3:** Test command from issue → runs and reports
-
-No agent carries the full research or planning context. Each beads issue description provides exactly the information the dispatched agent needs.

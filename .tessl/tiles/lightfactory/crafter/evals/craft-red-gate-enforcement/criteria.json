@@ -1,0 +1,26 @@
+{
+  "context": "Tests whether the craft skill enforces the RED gate by detecting when tests already pass before implementation and stopping immediately rather than proceeding to the implementation agent.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Red gate checked",
+      "description": "Tests are run after the test-writing agent completes and the result is evaluated against the RED gate",
+      "max_score": 20
+    },
+    {
+      "name": "Failure detected",
+      "description": "Agent detects that tests pass before implementation, identifying a RED gate failure",
+      "max_score": 30
+    },
+    {
+      "name": "Stops immediately",
+      "description": "No implementation agent is dispatched after the RED gate failure — execution halts",
+      "max_score": 30
+    },
+    {
+      "name": "Reports to user",
+      "description": "The agent explains to the user that the RED gate failed because tests already pass",
+      "max_score": 20
+    }
+  ]
+}

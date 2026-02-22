@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the draft skill produces both a plan file and a beads task graph with proper structure, agent context blocks in issue descriptions, and correct phase ordering.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Plan file created",
+      "description": "A plan file matching docs/plans/YYYY-MM-DD-*-plan.md is created",
+      "max_score": 20
+    },
+    {
+      "name": "Beads epic created",
+      "description": "A beads epic is created for the feature via the beads:epic skill",
+      "max_score": 20
+    },
+    {
+      "name": "Issues with deps",
+      "description": "Per-agent-step beads issues are created with dependency wiring via beads:dep",
+      "max_score": 25
+    },
+    {
+      "name": "Agent context blocks",
+      "description": "Issue descriptions contain Agent Context information including file paths, test specs, commands, and gates",
+      "max_score": 20
+    },
+    {
+      "name": "Phase ordering",
+      "description": "Implementation phases follow Database → Core → Repository → Features → Routes ordering",
+      "max_score": 15
+    }
+  ]
+}

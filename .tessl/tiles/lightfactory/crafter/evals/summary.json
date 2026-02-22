@@ -1,0 +1,94 @@
+{
+  "scenarios": [
+    {
+      "id": "tdd-red-green-refactor",
+      "skill": "tdd",
+      "capability": "red-green-refactor-cycle",
+      "description": "Verifies strict RED → GREEN → REFACTOR cycle with tests written before code"
+    },
+    {
+      "id": "tdd-zombies-heuristic",
+      "skill": "tdd",
+      "capability": "zombies-heuristic",
+      "description": "Verifies ZOMBIES heuristic is explicitly walked through during test planning"
+    },
+    {
+      "id": "tdd-property-based-testing",
+      "skill": "tdd",
+      "capability": "property-based-testing",
+      "description": "Verifies property-based tests with fast-check are used for core logic"
+    },
+    {
+      "id": "research-depth-inference",
+      "skill": "research",
+      "capability": "depth-level-inference",
+      "description": "Verifies depth level is inferred from prompt and parallel agents dispatched"
+    },
+    {
+      "id": "research-stop-boundary",
+      "skill": "research",
+      "capability": "stop-boundary-discipline",
+      "description": "Verifies research skill stops after artifact and does not proceed to planning"
+    },
+    {
+      "id": "draft-plan-and-tasks",
+      "skill": "draft",
+      "capability": "plan-file-and-task-graph",
+      "description": "Verifies both plan file and beads task graph are created with proper structure"
+    },
+    {
+      "id": "draft-no-implementation",
+      "skill": "draft",
+      "capability": "no-code-discipline",
+      "description": "Verifies draft produces plan only and does not write implementation code"
+    },
+    {
+      "id": "craft-red-gate-enforcement",
+      "skill": "craft",
+      "capability": "red-gate-enforcement",
+      "description": "Verifies craft stops when tests pass before implementation (RED gate failure)"
+    },
+    {
+      "id": "craft-agent-isolation",
+      "skill": "craft",
+      "capability": "agent-isolation",
+      "description": "Verifies separate agents for test/implement/validate with synchronous dispatch"
+    },
+    {
+      "id": "refactor-commit-discipline",
+      "skill": "refactor",
+      "capability": "atomic-commit-discipline",
+      "description": "Verifies one refactoring per commit with test runs before and after"
+    },
+    {
+      "id": "refactor-critic-mode",
+      "skill": "refactor",
+      "capability": "final-evaluation-critic",
+      "description": "Verifies agent enters critic mode after main pass and finds missed improvements"
+    },
+    {
+      "id": "pair-strict-mode",
+      "skill": "pair",
+      "capability": "strictness-enforcement",
+      "description": "Verifies strict mode never produces code even under user pressure"
+    },
+    {
+      "id": "pair-session-summary",
+      "skill": "pair",
+      "capability": "session-lifecycle",
+      "description": "Verifies session summary on /unpair with concepts and next steps"
+    },
+    {
+      "id": "tidy-doc-audit",
+      "skill": "tidy",
+      "capability": "documentation-audit",
+      "description": "Verifies parallel audit agents, severity classification, and one-fix-per-commit"
+    },
+    {
+      "id": "reflect-learning-loop",
+      "skill": "reflect",
+      "capability": "post-session-reflection",
+      "description": "Verifies parallel agents before plan mode, max 5 proposals, and atomic commits"
+    }
+  ]
+}

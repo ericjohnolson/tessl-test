@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the tidy skill dispatches three parallel audit agents, classifies findings by severity, applies one fix per commit with tidy: prefix, avoids code file changes, and uses AskUserQuestion for finding selection.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Parallel agents",
+      "description": "Three parallel Explore agents are dispatched in a single message with run_in_background",
+      "max_score": 25
+    },
+    {
+      "name": "Severity classification",
+      "description": "Findings are classified by severity: must-fix, should-fix, or nice-to-have",
+      "max_score": 20
+    },
+    {
+      "name": "One fix per commit",
+      "description": "Each documentation fix gets its own git commit with a message starting with tidy:",
+      "max_score": 25
+    },
+    {
+      "name": "No code changes",
+      "description": "Only documentation files are modified, not source code files",
+      "max_score": 15
+    },
+    {
+      "name": "User selection",
+      "description": "AskUserQuestion is used to let the user choose which findings to address",
+      "max_score": 15
+    }
+  ]
+}

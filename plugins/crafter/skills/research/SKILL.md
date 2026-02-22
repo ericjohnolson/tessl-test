@@ -1,11 +1,6 @@
 ---
 name: research
-description: Research phase of RPI methodology. Spawns parallel subagents for codebase exploration AND web/pattern research, then synthesizes findings for user review. Produces compact research artifact. Use at the start of non-trivial features.
-triggers:
-  - "research"
-  - "explore codebase"
-  - "investigate"
-allowed-tools: Read Glob Grep Task TaskOutput WebSearch WebFetch AskUserQuestion Write
+description: Explore a codebase and research external patterns before planning a new feature. Spawns parallel subagents for codebase investigation and web research, then synthesizes findings into a compact artifact (~200 lines) for user review. Use when starting a non-trivial feature, investigating unfamiliar code, or evaluating libraries and architectural approaches.
 ---
 
 # Research Skill
@@ -144,22 +139,14 @@ Tell the user:
 2. To clear context by running `/clear`
 3. To run `/draft` with the artifact path as input
 
-Explain why: research-phase context (agent outputs, file reads, web fetches) pollutes the planning phase. Clearing ensures `/draft` works from the compact artifact alone.
+Explain why: research-phase context (agent outputs, file reads, web fetches) pollutes the planning phase. Clearing ensures `/draft` works from the compact artifact alone. The research artifact serves as the sole context for planning.
 
-**Then STOP. Do not take any further actions. The research phase is complete.**
-
-## STOP — Phase Complete
-
-**After the user approves the research artifact, your job is DONE.**
+**After delivering next steps, your job is DONE:**
 
 - Do NOT proceed to planning or implementation
 - Do NOT invoke /draft or /craft
-- Do NOT write any code files
-- Do NOT create any plans or task graphs
-- Your ONLY remaining action is to tell the user the next steps (/clear → /draft)
-- Then STOP responding
-
-The next phases happen in separate conversations with clean context windows.
+- Do NOT write any code files or create any plans
+- Then STOP responding — the next phases happen in separate conversations with clean context windows
 
 ## Anti-Patterns to Avoid
 
@@ -170,15 +157,6 @@ The next phases happen in separate conversations with clean context windows.
 - **Don't include irrelevant details** — stay focused on the feature
 - **Don't present web findings without confidence levels** — every web finding needs High/Medium/Low
 - **Don't trust a single web source** — cross-reference when possible
-
-## After Research
-
-Once research is complete:
-1. Artifact is written to `docs/plans/` immediately after synthesis
-2. User reviews summary and requests edits via `AskUserQuestion`
-3. Clear context window with `/clear`
-4. Run `/draft` with the research artifact path as input
-5. Research artifact serves as the sole context for planning
 
 ## Context Compaction
 

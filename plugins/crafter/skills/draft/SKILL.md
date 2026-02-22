@@ -1,10 +1,6 @@
 ---
 name: draft
-description: Plan phase of RPI methodology. Consumes research artifact or topic and produces compact implementation plan with test specs and Agent Context blocks. Use after research or to start planning a non-trivial feature.
-triggers:
-  - "plan"
-  - "draft plan"
-  - "implementation plan"
+description: Transforms a research artifact or feature topic into a compact implementation plan with task breakdown, dependency mapping, test specifications, and acceptance criteria. Use when planning a non-trivial feature, designing architecture, writing a technical spec, or breaking down implementation steps before coding. Produces a phased plan with Agent Context blocks and a beads task graph for incremental execution.
 allowed-tools: Read Glob Write Bash AskUserQuestion Skill
 ---
 
@@ -59,11 +55,13 @@ Ask the user to clarify if needed:
 - Are there specific constraints or preferences?
 - What's the priority (MVP vs full feature)?
 
-### 3. Create Implementation Plan (Audit Trail)
+### 3. Create Implementation Plan
 
-Write the plan directly to `docs/plans/YYYY-MM-DD-{topic}-plan.md` using the `Write` tool and the [template structure](references/template.md). Use kebab-case for the topic slug (e.g., `2026-02-21-add-discount-codes-plan.md`).
+**Two artifacts are produced together:**
+- **Plan file** (`docs/plans/YYYY-MM-DD-{topic}-plan.md`) — human-readable audit trail for code review, PR descriptions, and design understanding
+- **Beads task graph** (created in Step 3b) — the execution source of truth that `/craft` reads at runtime; each beads issue is self-contained with everything an agent needs
 
-**Note:** The plan file serves as a **human-readable audit trail** for code review, PR descriptions, and design understanding. It is NOT the runtime source of truth for `/craft` — beads issues are (see Step 3b).
+Write the plan using the `Write` tool and the [template structure](references/template.md). Use kebab-case for the topic slug (e.g., `2026-02-21-add-discount-codes-plan.md`).
 
 **Required sections:**
 - **Goal** — 1-2 sentence description of what we're building and why
@@ -89,11 +87,9 @@ Write the plan directly to `docs/plans/YYYY-MM-DD-{topic}-plan.md` using the `Wr
 5. HTTP Routes (L4 boundary — contract tests)
 6. Full Integration (verification)
 
-See [template.md](references/template.md) for the complete template with Agent Context block reference.
+### 3b. Create Beads Task Graph
 
-### 3b. Create Beads Task Graph (Execution Source of Truth)
-
-After writing the plan file, create a beads epic and per-agent-step issues that `/craft` will execute. The beads task graph is the **contract between draft and craft** — each issue is self-contained with everything an agent needs.
+After writing the plan file, create a beads epic and per-agent-step issues that `/craft` will execute.
 
 **Procedure:**
 
@@ -111,7 +107,7 @@ After writing the plan file, create a beads epic and per-agent-step issues that 
    - `agent-test`, `agent-impl`, `agent-validate`, or `no-test` per agent type
    - `L3` or `L4` for boundary test level (TDD phases only)
 
-**Issue description format:** Each issue description MUST contain the full Agent Context — everything an agent needs to execute without reading the plan file or any other external document. See [template.md](references/template.md) for the self-contained issue description templates for each agent type.
+**Issue description format:** Each issue description MUST contain the full Agent Context — everything an agent needs to execute without reading the plan file or any other external document.
 
 **Example decomposition for a 6-phase feature:**
 
@@ -184,8 +180,6 @@ Describe the HTTP contract:
 - **Good:** "POST /orders returns 201 with `{ id, total }` on success, 400 with `{ error }` on validation failure"
 - **Bad:** Testing internal handler implementation details
 
-See [template.md](references/template.md) for detailed guidelines.
-
 ## Agent Context Blocks
 
 Every implementation phase with tests MUST include an `#### Agent Context` subsection in the plan file (for audit). The same Agent Context is embedded in each beads issue description (for execution). This is the contract between `/draft` and `/craft`.
@@ -196,8 +190,6 @@ Every implementation phase with tests MUST include an `#### Agent Context` subse
 - **Test command** — shell command to run
 - **RED gate / GREEN gate** — observable success criteria
 - **Architectural constraints** — boundaries the agent must respect
-
-See [template.md](references/template.md) for the Agent Context block reference and beads issue description templates.
 
 ## Phase Boundaries
 
@@ -241,3 +233,7 @@ The beads task graph provides durable state across sessions:
 - **Ready issues** = next tasks to dispatch (use `beads:ready`)
 - **Blocked issues** = waiting on dependencies
 - If a session is interrupted, running `/craft` again picks up exactly where it left off
+
+## References
+
+- [template.md](references/template.md) — Complete plan template, Agent Context block reference, and beads issue description templates for each agent type

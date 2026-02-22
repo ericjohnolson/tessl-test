@@ -1,17 +1,12 @@
 ---
 name: tdd
-description: Boundary-focused TDD workflow enforcing L3/L4 altitude testing, property-based tests, and phase separation. Use when implementing features that require writing tests and code.
+description: Test-driven development workflow using red-green-refactor cycles with integration tests at service boundaries and property-based testing. Use when the user explicitly requests TDD, test-first development, write tests first, unit tests, red-green-refactor, or property-based testing approaches.
 license: MIT
 compatibility: Claude Code plugin
 metadata:
   author: eric-olson
   version: "1.0.0"
   workflow: testing
-  triggers:
-    - "TDD"
-    - "test driven development"
-    - "red green refactor"
-    - "write tests first"
 allowed-tools: Read Glob Write Bash
 ---
 

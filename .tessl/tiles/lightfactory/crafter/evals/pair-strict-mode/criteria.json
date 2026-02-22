@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the pair skill enforces strict mode by never producing production code, declining requests to 'just write the code,' using Socratic questioning, and maintaining strictness under user pressure.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Strict mode set",
+      "description": "Strict mode is acknowledged and confirmed active in the session initialization",
+      "max_score": 10
+    },
+    {
+      "name": "No production code",
+      "description": "No production code is written at any point — only questions, verbal guidance, and code review",
+      "max_score": 30
+    },
+    {
+      "name": "Pushback declined",
+      "description": "The 'just write it for me' request is declined with acknowledgment and teaching redirection",
+      "max_score": 30
+    },
+    {
+      "name": "Socratic questioning",
+      "description": "Guiding questions are used throughout instead of providing direct answers",
+      "max_score": 20
+    },
+    {
+      "name": "Strictness persists",
+      "description": "Strictness level is maintained after user pressure without downgrading to collaborative mode",
+      "max_score": 10
+    }
+  ]
+}

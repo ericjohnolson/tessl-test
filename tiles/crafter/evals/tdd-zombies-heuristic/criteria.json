@@ -1,0 +1,41 @@
+{
+  "context": "Tests whether the TDD skill explicitly walks through the ZOMBIES heuristic during test planning, covering Zero, One, Many, Boundary, Interface, Exception, and Simple scenarios.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Test comments first",
+      "description": "[TEST] comments are planned before any coding begins",
+      "max_score": 15
+    },
+    {
+      "name": "Zero case",
+      "description": "Zero/empty case is explicitly covered in test planning",
+      "max_score": 10
+    },
+    {
+      "name": "One case",
+      "description": "Single-item case is covered in test planning",
+      "max_score": 10
+    },
+    {
+      "name": "Many case",
+      "description": "Multiple-item case is covered in test planning",
+      "max_score": 10
+    },
+    {
+      "name": "Boundary case",
+      "description": "Boundary transitions (at capacity) are covered in test planning",
+      "max_score": 15
+    },
+    {
+      "name": "Exception case",
+      "description": "Error/exception cases (enqueue-when-full, dequeue-when-empty) are covered",
+      "max_score": 15
+    },
+    {
+      "name": "ZOMBIES explicit",
+      "description": "The ZOMBIES heuristic letters are explicitly walked through when reviewing test completeness",
+      "max_score": 25
+    }
+  ]
+}

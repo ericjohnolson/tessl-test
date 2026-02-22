@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the craft skill maintains agent isolation by using separate agents for Write Test, Implement, and Validate, dispatching them synchronously, and reading context from beads issues.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Separate agents",
+      "description": "Distinct Task agents are used for Write Test, Implement, and Validate phases",
+      "max_score": 25
+    },
+    {
+      "name": "Synchronous dispatch",
+      "description": "TDD agents within a phase are dispatched sequentially, not in background",
+      "max_score": 20
+    },
+    {
+      "name": "Issues closed on gates",
+      "description": "Beads issues are closed only after their gate conditions are verified as passing",
+      "max_score": 20
+    },
+    {
+      "name": "Reads from beads",
+      "description": "Agent context is read from beads issues, not the plan file",
+      "max_score": 20
+    },
+    {
+      "name": "No shared context",
+      "description": "Each agent starts fresh with full context from the beads issue, not prior agent outputs",
+      "max_score": 15
+    }
+  ]
+}

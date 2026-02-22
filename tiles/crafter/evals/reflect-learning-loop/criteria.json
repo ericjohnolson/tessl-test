@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the reflect skill dispatches four parallel agents before entering Plan Mode, produces at most 5 priority-ordered proposals referencing actual session friction, protects ~/.claude/CLAUDE.md, and commits improvements atomically.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Four parallel agents",
+      "description": "Four agents are dispatched in a single message before EnterPlanMode is called",
+      "max_score": 25
+    },
+    {
+      "name": "Max five proposals",
+      "description": "At most 5 priority-ordered improvement proposals are produced in the reflection artifact",
+      "max_score": 20
+    },
+    {
+      "name": "Actual friction cited",
+      "description": "Proposals reference specific events from the session, not invented problems",
+      "max_score": 25
+    },
+    {
+      "name": "CLAUDE.md protected",
+      "description": "If global config is targeted, it uses ~/.claude/CLAUDE.local.md, never ~/.claude/CLAUDE.md",
+      "max_score": 15
+    },
+    {
+      "name": "Atomic commits",
+      "description": "Each approved improvement gets one commit with reflect: prefix",
+      "max_score": 15
+    }
+  ]
+}

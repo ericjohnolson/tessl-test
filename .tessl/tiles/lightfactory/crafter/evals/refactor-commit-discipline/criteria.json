@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the refactor skill maintains atomic commit discipline: running tests before and after every change, committing each refactoring individually with the '- r' prefix, and never adding new behavior.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Tests before start",
+      "description": "Tests are run and verified passing before the first refactoring change begins",
+      "max_score": 15
+    },
+    {
+      "name": "Tests after each change",
+      "description": "Test suite is executed after every individual refactoring step",
+      "max_score": 20
+    },
+    {
+      "name": "Individual commits",
+      "description": "Each refactoring is committed individually with a message starting with '- r '",
+      "max_score": 30
+    },
+    {
+      "name": "No new behavior",
+      "description": "No new functionality, features, or test cases are added — only structural improvements",
+      "max_score": 20
+    },
+    {
+      "name": "Tests unchanged",
+      "description": "Test assertions and test logic remain unchanged (only import/rename updates allowed)",
+      "max_score": 15
+    }
+  ]
+}

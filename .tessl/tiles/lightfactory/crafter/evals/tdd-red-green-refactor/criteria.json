@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the TDD skill follows strict RED-GREEN-REFACTOR discipline: tests planned and written before code, each test fails before implementation, minimal code to pass, and refactoring only when green.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Tests before code",
+      "description": "[TEST] comments are planned before any production code is written",
+      "max_score": 20
+    },
+    {
+      "name": "Red phase observed",
+      "description": "Each test is run and fails (red) before implementation code is written to make it pass",
+      "max_score": 30
+    },
+    {
+      "name": "Minimal green code",
+      "description": "Only minimal code is written to make each failing test pass — no speculative additions",
+      "max_score": 20
+    },
+    {
+      "name": "Refactor when green",
+      "description": "Refactoring happens only after tests are green, with tests run again after each refactoring",
+      "max_score": 20
+    },
+    {
+      "name": "Tests every change",
+      "description": "Test suite is executed after every code change throughout the session",
+      "max_score": 10
+    }
+  ]
+}

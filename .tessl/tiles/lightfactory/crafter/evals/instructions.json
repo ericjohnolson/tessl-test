@@ -1,0 +1,9 @@
+{
+  "tile": "lightfactory/crafter",
+  "version": "1.2.3",
+  "description": "Evaluation scenarios for the crafter tile's 8 skills implementing the RPI methodology and supporting workflows.",
+  "scenario_count": 15,
+  "skills_covered": ["tdd", "research", "draft", "craft", "refactor", "pair", "tidy", "reflect"],
+  "evaluation_approach": "Each scenario targets a specific capability of a skill with a realistic task prompt and grading criteria. Scenarios verify behavioral discipline (stop boundaries, gate enforcement, agent isolation) rather than output quality alone.",
+  "run_command": "tessl eval run tiles/crafter"
+}

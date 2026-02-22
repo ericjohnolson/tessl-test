@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the TDD skill uses fast-check for property-based testing of core logic, with properties for round-trip, total preservation, and non-negative constraints preferred over example-only tests.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Fast-check used",
+      "description": "fast-check library is imported and used with fc.property/fc.assert or equivalent",
+      "max_score": 20
+    },
+    {
+      "name": "Round-trip property",
+      "description": "A round-trip or algebraic property is tested for add/subtract operations",
+      "max_score": 20
+    },
+    {
+      "name": "Total preservation",
+      "description": "A property test verifies that the sum of split parts always equals the original amount",
+      "max_score": 25
+    },
+    {
+      "name": "Non-negative parts",
+      "description": "A property test verifies all parts returned by split are non-negative integers",
+      "max_score": 15
+    },
+    {
+      "name": "Properties over examples",
+      "description": "Core logic is tested primarily through property-based tests, not just hardcoded examples",
+      "max_score": 20
+    }
+  ]
+}

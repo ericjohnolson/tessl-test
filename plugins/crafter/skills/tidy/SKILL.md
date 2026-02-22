@@ -1,26 +1,12 @@
 ---
 name: tidy
-description: Audit and fix agent-facing documentation. Use when CLAUDE.md may be stale, docs don't match code, or undocumented conventions exist.
-triggers:
-  - "tidy"
-  - "tidy first"
-  - "audit docs"
-  - "update claude.md"
-  - "agent docs"
+description: Audit and fix agent-facing documentation by comparing docs to implementation, identifying broken links and stale references, surfacing undocumented conventions, and updating CLAUDE.md files. Use when CLAUDE.md may be stale, docs don't match code, or undocumented conventions exist.
 allowed-tools: Read Glob Grep Bash Task TaskOutput Write AskUserQuestion
 ---
 
 # Tidy Skill
 
-Inspired by Kent Beck's *Tidy First?* philosophy: make small structural improvements before behavioral changes. This skill targets the documentation layer that AI agents depend on — CLAUDE.md, cross-references, and implicit conventions.
-
-## Purpose
-
-AI agents perform better when their working context is accurate. Over time, agent-facing documentation drifts from reality as code evolves. This skill audits and fixes that drift by:
-
-- Checking CLAUDE.md structure against best practices
-- Verifying doc references point to real, current files
-- Surfacing undocumented conventions that exist in code but not in docs
+Audits and fixes agent-facing documentation by running parallel subagents to compare docs against the current codebase, then applies targeted fixes — one commit per finding.
 
 **Output:** Tidy report artifact at `docs/plans/YYYY-MM-DD-tidy-report.md`
 

@@ -1,10 +1,6 @@
 ---
 name: refactor
-description: Refactoring process with test safety. Invoke immediately when user or document mentions refactoring, or proactively when code gets too complex or messy.
-triggers:
-  - "refactor"
-  - "refactoring"
-  - "clean up code"
+description: Restructures code by extracting methods, renaming symbols, simplifying conditionals, removing duplication, and eliminating dead code — while running tests before and after each change to ensure behavior is preserved. Invoke immediately when user mentions refactor, refactoring, clean up, restructure, simplify, technical debt, code smell, DRY violations, or when code is messy, complex, or hard to maintain.
 allowed-tools: Read Glob Write Bash
 ---
 

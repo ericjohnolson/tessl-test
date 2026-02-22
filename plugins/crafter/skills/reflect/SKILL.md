@@ -1,11 +1,6 @@
 ---
 name: reflect
-description: Post-session reflection skill. Reads recent git history, artifacts, and context files to extract learnings and produce improvement proposals for skills, CLAUDE.md, hooks, and plan templates. Use after any substantive session.
-triggers:
-  - "reflect"
-  - "retrospective"
-  - "session reflection"
-  - "what did we learn"
+description: Post-session reflection skill for review session, retrospective, or session summary. Reads recent git history, artifacts, and context files to extract learnings and produce improvement proposals for skills, CLAUDE.md, hooks, and plan templates. Use after any substantive session to capture what did we learn and embed improvements back into codebase context.
 allowed-tools: Read Glob Grep Bash Task TaskOutput Write AskUserQuestion EnterPlanMode ExitPlanMode
 ---
 
@@ -15,11 +10,7 @@ allowed-tools: Read Glob Grep Bash Task TaskOutput Write AskUserQuestion EnterPl
 
 ## Purpose
 
-After coding sessions, learnings about workflow friction, missing context, and skill gaps evaporate. The Reflect skill closes this loop by:
-- Mining git history and artifacts for what actually happened
-- Identifying friction points and successful patterns
-- Producing concrete improvement proposals for skills, CLAUDE.md, hooks, and templates
-- Applying approved improvements with atomic commits
+Learnings about workflow friction, missing context, and skill gaps evaporate after sessions. This skill closes that loop by mining git history and artifacts, identifying friction points and successful patterns, and producing concrete improvement proposals. Approved proposals are applied with atomic commits.
 
 **Output:** Reflection artifact at `docs/plans/YYYY-MM-DD-{topic}-reflection.md`
 

@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the draft skill maintains no-code discipline when the prompt nudges it to write starter code. The skill should produce only a plan without any implementation files.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Plan produced",
+      "description": "A plan file is written to docs/plans/ or beads issues are created",
+      "max_score": 15
+    },
+    {
+      "name": "No implementation code",
+      "description": "No implementation source code files (.ts, .js) are created despite the prompt requesting starter code",
+      "max_score": 30
+    },
+    {
+      "name": "Starter code declined",
+      "description": "The prompt's request for starter code is declined or redirected to the plan",
+      "max_score": 20
+    },
+    {
+      "name": "Behavioral test specs",
+      "description": "Test specifications describe behavior, not specific testing tools or mock frameworks",
+      "max_score": 20
+    },
+    {
+      "name": "No mock prescriptions",
+      "description": "Test specs do not prescribe specific mocking approaches like jest.mock or sinon",
+      "max_score": 15
+    }
+  ]
+}

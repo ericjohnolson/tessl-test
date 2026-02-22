@@ -1,0 +1,26 @@
+{
+  "context": "Tests whether the refactor skill enters a Final Evaluation / critic mode after the main refactoring pass and identifies at least one additional improvement that was missed initially.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Main pass completed",
+      "description": "A main refactoring pass is performed with at least 2 improvements committed",
+      "max_score": 20
+    },
+    {
+      "name": "Enters critic mode",
+      "description": "Agent explicitly announces entering final evaluation or critic mode after the main pass",
+      "max_score": 30
+    },
+    {
+      "name": "Finds missed improvement",
+      "description": "At least one additional improvement is identified and fixed during the critic pass",
+      "max_score": 30
+    },
+    {
+      "name": "Critic follows process",
+      "description": "Critic mode improvements follow the same test-change-commit process as the main pass",
+      "max_score": 20
+    }
+  ]
+}
